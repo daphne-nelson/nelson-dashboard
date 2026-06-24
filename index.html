@@ -1431,19 +1431,22 @@
       const dmM = txt.match(/As of\s+(\d{1,2})\s+(\w+)\s+(\d{4})/);
       if(dmM) out.month = dmM[3]+'-'+(MON[dmM[2]]||'??');
 
-      // 2. 净资产/TWR/损益 — "Performance\nvalue" 后 token 序列
-      // 顺序: net(ytd) twr%(ytd) net(cur) twr%(cur) net(prev) twr%(prev) pl(ytd) pl(cur) pl(prev)
-      // 当月 = tokens[2](net), tokens[3](twr%), tokens[7](pl)
+      // 2. 净资产/TWR/损益 — "Performance\nvalue" 后逐行提取
+      // 文本行顺序: net7(ytd) twr%(ytd) net7(cur) twr%(cur) net6(prev) twr%(prev) pl(ytd) pl(cur) pl(prev)
+      // net7=7位数(X XXX XXX), twr%=小数百分比, pl=最后一组twr之后的所有数 → 各取index 1(当月)
       const pvIdx = txt.indexOf('Performance\nvalue');
       const cmIdx = txt.indexOf('Current month:');
       if(pvIdx >= 0 && cmIdx >= 0 && pvIdx > cmIdx){
         const after = txt.slice(pvIdx + 18, pvIdx + 700);
-        const tokens = [...after.matchAll(/(-?[\d][\d ]*[\d]|-?[\d.]+%)/g)].map(m=>m[1]);
-        if(tokens.length >= 8){
-          out.net_assets = cleanNum(tokens[2]);
-          out.twr_pct    = parseFloat(tokens[3]);
-          out.pl_amount  = cleanNum(tokens[7]);
-        }
+        const nets7 = after.match(/^(\d \d{3} \d{3})$/mg)||[];
+        const twrs  = after.match(/^(-?\d{1,3}\.\d{2})%$/mg)||[];
+        // P&Ls = lines after last TWR
+        let lastTwrEnd = 0;
+        for(const m of [...after.matchAll(/^-?\d{1,3}\.\d{2}%$/mg)]) lastTwrEnd = m.index + m[0].length + 1;
+        const pls = lastTwrEnd ? (after.slice(lastTwrEnd).match(/^(-?[\d][\d ]*[\d])$/mg)||[]) : [];
+        if(nets7[1]) out.net_assets = cleanNum(nets7[1]);
+        if(twrs[1])  out.twr_pct    = parseFloat(twrs[1]);
+        if(pls[1])   out.pl_amount  = cleanNum(pls[1]);
       }
 
       return out;
