@@ -1759,6 +1759,82 @@ function parseA01Holdings(txt, asOfDate) {
       if(typeof pdfjsLib!=='undefined'){ pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; }
       loadData();
     });
+
+    // ════ Holdings localStorage ════
+    const LS_KEY = 'le_holdings_v1';
+
+    function saveHoldingsLocal(month, rows) {
+      let store = {};
+      try { store = JSON.parse(localStorage.getItem(LS_KEY)||'{}'); } catch(e){}
+      store[month] = { A01: rows.filter(r=>r.account==='A01'), A02: rows.filter(r=>r.account==='A02') };
+      localStorage.setItem(LS_KEY, JSON.stringify(store));
+      renderHoldingsHistory();
+    }
+
+    function getHoldingsStore() {
+      let store = {};
+      try { store = JSON.parse(localStorage.getItem(LS_KEY)||'{}'); } catch(e){}
+      const seedByMonth = {};
+      SEED_HOLDINGS.forEach(h => {
+        const m = h.as_of_date ? h.as_of_date.slice(0,7) : '';
+        if (!m) return;
+        if (!seedByMonth[m]) seedByMonth[m] = { A01:[], A02:[] };
+        seedByMonth[m][h.account].push(h);
+      });
+      Object.keys(seedByMonth).forEach(m => {
+        if (!store[m]) store[m] = seedByMonth[m];
+      });
+      return store;
+    }
+
+    let activeHoldingsMonth = null;
+
+    function renderHoldingsHistory() {
+      const store = getHoldingsStore();
+      const months = Object.keys(store).sort();
+      if (!months.length) return;
+      if (!activeHoldingsMonth || !store[activeHoldingsMonth]) activeHoldingsMonth = months[months.length-1];
+      const tabs = document.getElementById('holdingsTabs');
+      if (!tabs) return;
+      const cnM = m => parseInt(m.split('-')[1],10) + '月';
+      tabs.innerHTML = months.map(m => {
+        const active = m === activeHoldingsMonth;
+        return `<button onclick="switchHoldingsTab('${m}')" style="font-family:var(--font-cjk);font-size:13px;font-weight:${active?'700':'500'};padding:10px 20px;border:none;border-bottom:3px solid ${active?'var(--claret)':'transparent'};background:transparent;cursor:pointer;color:${active?'var(--ink)':'var(--slate)'};transition:all .15s;">${cnM(m)}</button>`;
+      }).join('');
+      renderHoldingsTable(store[activeHoldingsMonth]);
+    }
+
+    function switchHoldingsTab(month) {
+      activeHoldingsMonth = month;
+      renderHoldingsHistory();
+    }
+
+    function renderHoldingsTable(monthData) {
+      const fmt2 = n => n==null?'—':Number(n).toLocaleString('en-US',{maximumFractionDigits:0});
+      const pct2 = v => v==null?'—':Number(v).toFixed(v<1?2:1)+'%';
+      function makeTable(rows, cols) {
+        if (!rows||!rows.length) return '<div style="font-size:12px;color:var(--slate);font-family:var(--font-cjk);padding:8px 0;">暂无数据</div>';
+        let total = 0;
+        const bodyRows = rows.map(h => {
+          total += Number(h.market_value_usd)||0;
+          if (cols===5) return `<tr><td>${h.name||'—'}</td><td>${h.shares||'—'}</td><td>${fmt2(h.market_value_usd)}</td><td>${pct2(h.pct_portfolio)}</td><td class="txt">${h.notes||'—'}</td></tr>`;
+          return `<tr><td>${h.name||'—'}</td><td>${h.shares||'—'}</td><td>${fmt2(h.market_value_usd)}</td><td>${pct2(h.pct_portfolio)}</td></tr>`;
+        }).join('');
+        const totalRow = cols===5
+          ? `<tr class="total"><td class="txt">合计</td><td>—</td><td>${fmt2(total)}</td><td>100%</td><td>—</td></tr>`
+          : `<tr class="total"><td class="txt">合计</td><td>—</td><td>${fmt2(total)}</td><td>100%</td></tr>`;
+        const hdr = cols===5
+          ? '<tr><th style="text-align:left">持仓名称</th><th>数量</th><th>市值 USD</th><th>占比</th><th style="text-align:left">备注</th></tr>'
+          : '<tr><th style="text-align:left">持仓名称</th><th>数量</th><th>市值 USD</th><th>占比</th></tr>';
+        return `<table class="ftable"><thead>${hdr}</thead><tbody>${bodyRows}${totalRow}</tbody></table>`;
+      }
+      const a01El = document.getElementById('holdingsA01Table');
+      const a02El = document.getElementById('holdingsA02Table');
+      if (a01El) a01El.innerHTML = makeTable(monthData?.A01||[], 5);
+      if (a02El) a02El.innerHTML = makeTable(monthData?.A02||[], 4);
+    }
+    window.switchHoldingsTab = switchHoldingsTab;
+    window.saveHoldingsLocal = saveHoldingsLocal;
     // expose for tab re-init if needed
     window.buildLECharts = renderChart;
     })();
@@ -2126,93 +2202,6 @@ function parseA01Holdings(txt, asOfDate) {
     }
 
   }
-
-    // ════ Holdings localStorage ════
-    const LS_KEY = 'le_holdings_v1';
-
-    function saveHoldingsLocal(month, rows) {
-      let store = {};
-      try { store = JSON.parse(localStorage.getItem(LS_KEY)||'{}'); } catch(e){}
-      store[month] = { A01: rows.filter(r=>r.account==='A01'), A02: rows.filter(r=>r.account==='A02') };
-      localStorage.setItem(LS_KEY, JSON.stringify(store));
-      renderHoldingsHistory();
-    }
-
-    function getHoldingsStore() {
-      let store = {};
-      try { store = JSON.parse(localStorage.getItem(LS_KEY)||'{}'); } catch(e){}
-      // 用 SEED_HOLDINGS 填充没有本地数据的月份
-      const seedByMonth = {};
-      SEED_HOLDINGS.forEach(h => {
-        const m = h.as_of_date ? h.as_of_date.slice(0,7) : '';
-        if (!m) return;
-        if (!seedByMonth[m]) seedByMonth[m] = { A01:[], A02:[] };
-        seedByMonth[m][h.account].push(h);
-      });
-      // 只有 localStorage 没有该月数据时才用 seed
-      Object.keys(seedByMonth).forEach(m => {
-        if (!store[m]) store[m] = seedByMonth[m];
-      });
-      return store;
-    }
-
-    let activeHoldingsMonth = null;
-
-    function renderHoldingsHistory() {
-      const store = getHoldingsStore();
-      const months = Object.keys(store).sort();
-      if (!months.length) return;
-
-      // 默认选最新月
-      if (!activeHoldingsMonth || !store[activeHoldingsMonth]) activeHoldingsMonth = months[months.length-1];
-
-      // 渲染 tabs
-      const tabs = document.getElementById('holdingsTabs');
-      if (!tabs) return;
-      const cnM = m => parseInt(m.split('-')[1],10) + '月';
-      tabs.innerHTML = months.map(m => {
-        const active = m === activeHoldingsMonth;
-        return `<button onclick="switchHoldingsTab('${m}')" style="
-          font-family:var(--font-cjk);font-size:13px;font-weight:${active?'700':'500'};
-          padding:10px 20px;border:none;border-bottom:3px solid ${active?'var(--claret)':'transparent'};
-          background:transparent;cursor:pointer;color:${active?'var(--ink)':'var(--slate)'};
-          transition:all .15s;">${cnM(m)}</button>`;
-      }).join('');
-
-      renderHoldingsTable(store[activeHoldingsMonth]);
-    }
-
-    function switchHoldingsTab(month) {
-      activeHoldingsMonth = month;
-      renderHoldingsHistory();
-    }
-
-    function renderHoldingsTable(monthData) {
-      const fmt2 = n => n==null?'—':Number(n).toLocaleString('en-US',{maximumFractionDigits:0});
-      const pct2 = v => v==null?'—':Number(v).toFixed(v<1?2:1)+'%';
-
-      function makeTable(rows, cols) {
-        if (!rows||!rows.length) return '<div style="font-size:12px;color:var(--slate);font-family:var(--font-cjk);padding:8px 0;">暂无数据</div>';
-        let total = 0;
-        const bodyRows = rows.map(h => {
-          total += Number(h.market_value_usd)||0;
-          if (cols===5) return `<tr><td>${h.name||'—'}</td><td>${h.shares||'—'}</td><td>${fmt2(h.market_value_usd)}</td><td>${pct2(h.pct_portfolio)}</td><td class="txt">${h.notes||'—'}</td></tr>`;
-          return `<tr><td>${h.name||'—'}</td><td>${h.shares||'—'}</td><td>${fmt2(h.market_value_usd)}</td><td>${pct2(h.pct_portfolio)}</td></tr>`;
-        }).join('');
-        const totalRow = cols===5
-          ? `<tr class="total"><td class="txt">合计</td><td>—</td><td>${fmt2(total)}</td><td>100%</td><td>—</td></tr>`
-          : `<tr class="total"><td class="txt">合计</td><td>—</td><td>${fmt2(total)}</td><td>100%</td></tr>`;
-        const hdr = cols===5
-          ? '<tr><th style="text-align:left">持仓名称</th><th>数量</th><th>市值 USD</th><th>占比</th><th style="text-align:left">备注</th></tr>'
-          : '<tr><th style="text-align:left">持仓名称</th><th>数量</th><th>市值 USD</th><th>占比</th></tr>';
-        return `<table class="ftable"><thead>${hdr}</thead><tbody>${bodyRows}${totalRow}</tbody></table>`;
-      }
-
-      const a01El = document.getElementById('holdingsA01Table');
-      const a02El = document.getElementById('holdingsA02Table');
-      if (a01El) a01El.innerHTML = makeTable(monthData?.A01||[], 5);
-      if (a02El) a02El.innerHTML = makeTable(monthData?.A02||[], 4);
-    }
 
     window.switchHoldingsTab = switchHoldingsTab;
     window.addEventListener('load', buildCharts);
