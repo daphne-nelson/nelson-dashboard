@@ -1,0 +1,2124 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lucky Earn Investment Ltd — Family Asset Dashboard V2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700&family=Hanken+Grotesk:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+  /* ── TOKENS ── */
+  :root {
+    --paper:           #F4F1EA;
+    --paper-2:         #ECEAE1;
+    --paper-3:         #E3E0D5;
+    --ink:             #1A2740;
+    --ink-soft:        #3A4459;
+    --claret:          #7C2E2E;
+    --claret-deep:     #5F2222;
+    --slate:           #6C7080;
+    --hairline:        #CFC9BB;
+    --hairline-strong: #B4AD9D;
+    --pos:             #3E5A4E;
+    --neg:             #7C2E2E;
+    --data-1:          #1A2740;
+    --data-2:          #7C2E2E;
+    --data-3:          #9A7B3F;
+    --data-4:          #3E5A4E;
+    --data-5:          #5B6B82;
+    --data-6:          #B4A88C;
+
+    --font-display: 'Schibsted Grotesk', sans-serif;
+    --font-text:    'Hanken Grotesk', sans-serif;
+    --font-cjk:     'Noto Sans SC', 'Noto Sans TC', sans-serif;
+
+    --fs-display-xl: 76px;
+    --fs-display:    48px;
+    --fs-h1:         33px;
+    --fs-h2:         23px;
+    --fs-h3:         17px;
+    --fs-body:       15px;
+    --fs-small:      12.5px;
+    --fs-caption:    11px;
+    --fs-eyebrow:    10.5px;
+    --fs-folio:      10px;
+
+    --margin-x: 48px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-text), var(--font-cjk);
+    font-size: var(--fs-body);
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  .num { font-variant-numeric: tabular-nums lining-nums; font-family: var(--font-display); }
+  .neg { color: var(--claret); }
+  .pos { color: var(--pos); }
+  .pending { color: var(--slate); font-style: italic; }
+
+  /* ── RUNNING HEAD ── */
+  .running-head {
+    position: sticky; top: 0; z-index: 40;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 10px var(--margin-x);
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--font-text);
+    font-size: var(--fs-folio);
+    letter-spacing: .15em;
+    text-transform: uppercase;
+  }
+  .running-head .conf { color: var(--claret); font-weight: 600; letter-spacing: .2em; }
+
+  /* ── COVER ── */
+  .cover {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 64px var(--margin-x) 52px;
+  }
+  .cover-inner { max-width: 1180px; margin: 0 auto; }
+  .cover .eyebrow {
+    font-family: var(--font-text);
+    font-size: var(--fs-eyebrow);
+    letter-spacing: .22em; text-transform: uppercase;
+    color: var(--claret); margin-bottom: 16px;
+  }
+  .cover h1 {
+    font-family: var(--font-display);
+    font-size: clamp(34px, 5.4vw, 60px);
+    font-weight: 600; line-height: 1.0; letter-spacing: -.02em;
+    margin-bottom: 8px;
+  }
+  .cover .subtitle {
+    font-family: var(--font-cjk);
+    font-size: var(--fs-h2); font-weight: 400;
+    color: var(--hairline-strong); margin-bottom: 28px;
+  }
+  .cover-rule { border: none; border-top: 1px solid var(--claret); margin-bottom: 18px; }
+  .cover .descriptor {
+    font-size: var(--fs-small); color: var(--slate);
+    letter-spacing: .08em; text-transform: uppercase;
+  }
+
+  /* ── NAV TABS ── */
+  .nav {
+    position: sticky; top: 35px; z-index: 30;
+    background: var(--paper);
+    border-bottom: 1px solid var(--ink);
+  }
+  .nav-inner {
+    max-width: 1180px; margin: 0 auto; padding: 0 var(--margin-x);
+    display: flex; gap: 0; flex-wrap: wrap;
+  }
+  .nav button {
+    background: none; border: none; cursor: pointer;
+    font-family: var(--font-cjk); font-weight: 500;
+    font-size: var(--fs-small);
+    color: var(--slate);
+    padding: 16px 22px 14px;
+    letter-spacing: .04em;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color .15s;
+    display: flex; align-items: baseline; gap: 8px;
+  }
+  .nav button .en {
+    font-family: var(--font-text); font-size: var(--fs-caption);
+    text-transform: uppercase; letter-spacing: .12em; color: var(--hairline-strong);
+  }
+  .nav button:hover { color: var(--ink); }
+  .nav button.active { color: var(--ink); border-bottom-color: var(--claret); }
+  .nav button.active .en { color: var(--slate); }
+
+  /* ── PAGE WRAP ── */
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 var(--margin-x) 80px; }
+  .panel { display: none; padding-top: 44px; }
+  .panel.active { display: block; animation: fade .25s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+  /* ── SECTION HEADER ── */
+  .section-header { margin-bottom: 22px; }
+  .eyebrow {
+    display: block; font-family: var(--font-text);
+    font-size: var(--fs-eyebrow); letter-spacing: .22em;
+    text-transform: uppercase; color: var(--claret); margin-bottom: 10px;
+  }
+  .eyebrow--slate { color: var(--slate); }
+  h2.section-title {
+    font-family: var(--font-display); font-size: var(--fs-h1);
+    font-weight: 600; line-height: 1.08; letter-spacing: -.01em;
+  }
+  h3.sub-title {
+    font-family: var(--font-cjk); font-size: var(--fs-h3);
+    font-weight: 700; margin-bottom: 4px; color: var(--ink);
+  }
+  .lead { color: var(--ink-soft); font-size: var(--fs-small); max-width: 720px; margin-top: 6px; }
+  .block-head {
+    display: flex; align-items: baseline; gap: 12px;
+    margin: 40px 0 14px; flex-wrap: wrap;
+  }
+  .block-head .en {
+    font-family: var(--font-text); font-size: var(--fs-caption);
+    text-transform: uppercase; letter-spacing: .14em; color: var(--slate);
+  }
+  .rule { display: block; border: none; border-top: 1px solid var(--hairline); margin: 18px 0; }
+  .rule--ink { border-color: var(--ink); }
+  .rule--claret { border-color: var(--claret); }
+  .rule--thick { border-top-width: 3px; }
+
+  /* ── KPI STRIP (inverse) ── */
+  .kpi-strip {
+    background: var(--ink); color: var(--paper);
+    display: grid; grid-template-columns: repeat(4, 1fr);
+  }
+  .kpi {
+    padding: 22px 22px 20px;
+    border-left: 1px solid rgba(244,241,234,.14);
+  }
+  .kpi:first-child { border-left: none; }
+  .kpi .k-label {
+    font-size: var(--fs-eyebrow); letter-spacing: .14em;
+    text-transform: uppercase; color: var(--hairline-strong); margin-bottom: 12px;
+  }
+  .kpi .k-label .zh { font-family: var(--font-cjk); letter-spacing: .04em; }
+  .kpi .k-figure {
+    font-family: var(--font-display); font-variant-numeric: tabular-nums;
+    font-size: 27px; font-weight: 600; line-height: 1; letter-spacing: -.02em;
+    color: var(--paper) !important;
+  }
+  .kpi .k-figure.small { font-size: 19px; }
+  .kpi .k-sub { font-size: var(--fs-caption); color: rgba(244,241,234,.55); margin-top: 8px; }
+  .kpi .k-figure.pending-fig { color: var(--hairline-strong); font-style: italic; font-weight: 500; font-size: 18px; }
+
+  /* ── REGION CARDS (rules, not boxes) ── */
+  .region-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border-top: 1px solid var(--ink); }
+  .region {
+    padding: 22px 22px 24px;
+    border-left: 1px solid var(--hairline);
+  }
+  .region:first-child { border-left: none; }
+  .region .r-eyebrow {
+    font-size: var(--fs-eyebrow); letter-spacing: .2em; text-transform: uppercase;
+    color: var(--claret); margin-bottom: 6px;
+  }
+  .region h4 { font-family: var(--font-cjk); font-size: var(--fs-h3); font-weight: 700; margin-bottom: 2px; }
+  .region .r-en { font-size: var(--fs-caption); color: var(--slate); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 14px; }
+  .region .r-line { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--hairline); font-size: var(--fs-small); }
+  .region .r-line:last-child { border-bottom: none; }
+  .region .r-line .l { color: var(--ink-soft); font-family: var(--font-cjk); }
+  .region .r-line .v { font-family: var(--font-display); font-variant-numeric: tabular-nums; font-weight: 600; }
+
+  /* ── CHART GRID ── */
+  .chart-grid { display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 48px; align-items: start; }
+  .chart-box { min-height: 260px; }
+  .chart-cap { font-size: var(--fs-caption); color: var(--slate); margin-top: 12px; letter-spacing: .04em; font-family: var(--font-cjk); }
+
+  /* ── FINANCIAL TABLE ── */
+  .ftable { width: 100%; border-collapse: collapse; font-size: var(--fs-small); font-variant-numeric: tabular-nums lining-nums; }
+  .ftable thead th {
+    font-family: var(--font-text); font-size: var(--fs-caption);
+    letter-spacing: .1em; text-transform: uppercase; color: var(--slate);
+    text-align: right; padding: 0 12px 10px 0; border-bottom: 1px solid var(--ink);
+    white-space: nowrap;
+  }
+  .ftable thead th:first-child { text-align: left; }
+  .ftable thead th .zh { font-family: var(--font-cjk); letter-spacing: .02em; display: block; }
+  .ftable td {
+    padding: 10px 12px 10px 0; text-align: right;
+    border-bottom: 1px solid var(--hairline); color: var(--ink); vertical-align: top;
+  }
+  .ftable td:first-child { text-align: left; font-family: var(--font-cjk); }
+  .ftable td.txt { font-family: var(--font-cjk); text-align: left; }
+  .ftable td .meta { display: block; font-size: var(--fs-caption); color: var(--slate); margin-top: 2px; font-family: var(--font-text); }
+  .ftable td .meta.cjk { font-family: var(--font-cjk); }
+  .ftable tr.subhead td {
+    font-weight: 700; font-size: var(--fs-caption); letter-spacing: .08em;
+    text-transform: uppercase; color: var(--claret); padding-top: 22px;
+    border-bottom: 1px solid var(--hairline-strong); font-family: var(--font-text);
+  }
+  .ftable tr.total td {
+    font-weight: 700; border-top: 1px solid var(--ink); border-bottom: 2px solid var(--ink);
+    padding-top: 11px; font-family: var(--font-display); font-variant-numeric: tabular-nums;
+  }
+  .ftable tr.total td.txt { font-family: var(--font-cjk); }
+  .tag {
+    display: inline-block; font-family: var(--font-text); font-size: 9.5px;
+    letter-spacing: .1em; text-transform: uppercase; padding: 2px 7px;
+    border: 1px solid var(--hairline-strong); color: var(--slate); margin-left: 6px;
+    white-space: nowrap; vertical-align: middle;
+  }
+  .tag.confirmed { border-color: var(--pos); color: var(--pos); }
+  .tag.pending { border-color: var(--claret); color: var(--claret); }
+  .owner-tag {
+    display: inline-block; font-family: var(--font-text); font-size: 10px;
+    letter-spacing: .06em; padding: 1px 6px; background: var(--paper-3); color: var(--ink-soft);
+  }
+
+  /* ── STAT ROW ── */
+  .stat-grid { display: flex; gap: 48px; flex-wrap: wrap; margin: 10px 0; }
+  .stat-figure { font-family: var(--font-display); font-size: var(--fs-display); font-weight: 600; line-height: 1; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+  .stat-figure.small { font-size: 34px; }
+  .stat-label { font-size: var(--fs-caption); color: var(--slate); letter-spacing: .1em; text-transform: uppercase; margin-top: 6px; }
+  .stat-label .zh { font-family: var(--font-cjk); letter-spacing: .02em; display: block; margin-top: 2px; color: var(--ink-soft); }
+
+  /* ── RISK ── */
+  .risk-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 48px; }
+  .risk {
+    border-top: 1px solid var(--ink); padding: 18px 0 8px; margin-bottom: 8px;
+  }
+  .risk .r-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
+  .risk h4 { font-family: var(--font-cjk); font-size: var(--fs-h3); font-weight: 700; }
+  .risk .level {
+    font-family: var(--font-text); font-size: var(--fs-eyebrow); letter-spacing: .14em;
+    text-transform: uppercase; padding: 2px 8px;
+  }
+  .risk .level.high { background: var(--claret); color: var(--paper); }
+  .risk .level.mid { color: var(--claret); border: 1px solid var(--claret); }
+  .risk .level.low { color: var(--slate); border: 1px solid var(--hairline-strong); }
+  .risk p { font-size: var(--fs-small); color: var(--ink-soft); font-family: var(--font-cjk); line-height: 1.8; }
+  .risk .en { font-size: var(--fs-caption); color: var(--slate); letter-spacing: .1em; text-transform: uppercase; }
+
+  /* ── CALLOUT ── */
+  .callout { background: var(--paper-2); border-left: 3px solid var(--claret); padding: 16px 20px; margin: 24px 0; }
+  .callout p { font-size: var(--fs-small); color: var(--ink); font-family: var(--font-cjk); line-height: 1.8; }
+  .callout.ink { border-color: var(--ink); background: var(--paper-3); }
+
+  /* ── STRUCTURE TREE ── */
+  .tree { font-family: var(--font-cjk); font-size: var(--fs-small); margin: 8px 0; }
+  .tree .node { padding: 9px 0; border-bottom: 1px solid var(--hairline); display: block; }
+  .tree .node.l0 { border-bottom: 1px solid var(--ink); font-weight: 700; font-size: var(--fs-h3); padding-top: 4px; display: flex; justify-content: space-between; align-items: baseline; }
+  .tree .node.l1 { padding-left: 20px; font-weight: 600; }
+  .tree .node.l1::before { content: "├  "; color: var(--hairline-strong); font-family: var(--font-text); }
+  .tree .node.l2 { padding-left: 44px; color: var(--ink-soft); }
+  .tree .node.l2::before { content: "└  "; color: var(--hairline-strong); font-family: var(--font-text); }
+  .tree .val { font-family: var(--font-display); font-variant-numeric: tabular-nums; color: var(--slate); font-size: var(--fs-caption); margin-left: 8px; font-weight: 400; }
+  .tree .who { display: none; }
+
+  /* ── FOOTER ── */
+  .conf-footer { margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--hairline); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+  .conf-footer p { font-size: var(--fs-caption); color: var(--slate); font-family: var(--font-cjk); }
+  .conf-footer .conf-badge { font-size: var(--fs-eyebrow); letter-spacing: .2em; text-transform: uppercase; color: var(--claret); font-weight: 600; font-family: var(--font-text); }
+
+  /* legend for charts */
+  .legend { list-style: none; margin: 0; padding: 0; }
+  .legend li { display: flex; align-items: center; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid var(--hairline); font-size: var(--fs-small); }
+  .legend li:last-child { border-bottom: none; }
+  .legend .swatch-dot { width: 10px; height: 10px; display: inline-block; margin-right: 10px; }
+  .legend .lab { font-family: var(--font-cjk); color: var(--ink-soft); display: flex; align-items: center; }
+  .legend .val { font-family: var(--font-display); font-variant-numeric: tabular-nums; font-weight: 600; }
+
+  @media (max-width: 980px) {
+    .kpi-strip { grid-template-columns: repeat(2, 1fr); }
+    .kpi:nth-child(3) { border-left: none; }
+    .region-grid { grid-template-columns: 1fr; }
+    .region { border-left: none; border-top: 1px solid var(--hairline); }
+    .region:first-child { border-top: none; }
+    .chart-grid { grid-template-columns: 1fr; gap: 28px; }
+    .risk-grid { grid-template-columns: 1fr; }
+    :root { --margin-x: 22px; }
+  }
+
+  /* ── COLLAPSIBLE TREE ACCORDION ── */
+
+
+  .node-group { border:none; }
+  .node-toggle {
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    position: relative;
+  }
+  .node-toggle::-webkit-details-marker { display: none; }
+  .node-chevron {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--slate);
+    transition: transform .2s;
+    padding-right: 4px;
+  }
+  .node-group[open] > summary .node-chevron { transform: rotate(180deg); }
+
+  .chart-accordion { border:none; margin-bottom:0; }
+  .chart-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    cursor: pointer;
+    list-style: none;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .chart-summary::-webkit-details-marker { display: none; }
+  .chart-accordion[open] .tree-chevron { transform: rotate(180deg); }
+
+  .tree-accordion { border: none; margin-bottom: 0; }
+  .tree-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0 10px;
+    cursor: pointer;
+    list-style: none;
+    border-bottom: 1px solid var(--hairline);
+    margin-bottom: 0;
+  }
+  .tree-summary::-webkit-details-marker { display: none; }
+  .tree-chevron {
+    font-size: 14px;
+    color: var(--slate);
+    transition: transform .2s;
+    user-select: none;
+  }
+  details[open] .tree-chevron { transform: rotate(180deg); }
+  .tree-accordion .tree { margin-top: 0; border-top: none; }
+
+</style>
+</head>
+<body>
+
+<!-- Running head -->
+<div class="running-head">
+  <span>Lucky Earn Investment Ltd · Family Asset Dashboard</span>
+  <span class="conf">Confidential · 机密</span>
+</div>
+
+<!-- Cover -->
+<div class="cover">
+  <div class="cover-inner">
+    <p class="eyebrow">Family Asset Dashboard · 数据截至 2026-06</p>
+    <h1>Family Asset Dashboard</h1>
+    <p class="subtitle">张氏家族办公室 · 资产总览</p>
+    <hr class="cover-rule">
+    <p class="descriptor">Lucky Earn Investment Ltd · 瑞盈投资有限公司 · The Chang Family Office</p>
+  </div>
+</div>
+
+<!-- Nav -->
+<nav class="nav">
+  <div class="nav-inner">
+    <button class="active" data-tab="overview">总览 <span class="en">Overview</span></button>
+    <button data-tab="china">中国资产 <span class="en">Mainland</span></button>
+    <button data-tab="overseas">海外资产 <span class="en">Overseas</span></button>
+    <button data-tab="taiwan">台湾资产 <span class="en">Taiwan</span></button>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <!-- ════════ 1. OVERVIEW ════════ -->
+  <section class="panel active" id="overview">
+    <div class="section-header">
+      <span class="eyebrow">01 — Overview</span>
+      <h2 class="section-title">家族资产总览</h2>
+      <p class="lead">家族全资产总盘视图 — 不动产（大陆 · 日本）、境外上市股票及基金（Lucky Earn · For Lucky）、现金存款。</p>
+    </div>
+
+    <!-- ① KPI strip -->
+    <div class="block-head"><span class="eyebrow eyebrow--slate" style="margin:0">Key Figures</span><span class="en">关键指标</span></div>
+    <div class="kpi-strip">
+      <div class="kpi"><div class="k-label">Properties<span class="zh"> · 持有物业</span></div><div class="k-figure num">9 处</div><div class="k-sub">大陆7 · 日本2</div></div>
+      <div class="kpi"><div class="k-label">Monthly Net<span class="zh"> · 月净租金</span></div><div class="k-figure num pos">¥143,791</div><div class="k-sub">含日本CNY换算</div></div>
+      <div class="kpi"><div class="k-label">Annual Net<span class="zh"> · 年税后净收入</span></div><div class="k-figure num pos">¥172.5万</div><div class="k-sub">含日本</div></div>
+      <div class="kpi"><div class="k-label">Nearest Expiry<span class="zh"> · 最近合约到期</span></div><div class="k-figure num" style="font-size:20px;font-family:var(--font-cjk)">美丽园 28E <span style="font-size:13px;font-weight:400;opacity:.7">Nelson</span></div><div class="k-sub">2026/12/31 · 距今约 6 个月 ⚠</div></div>
+    </div>
+
+    <!-- ② 全资产三大类 -->
+    <div class="block-head"><h3 class="sub-title">家族全资产 — 三大类</h3><span class="en">All Assets by Class</span></div>
+    <hr class="rule rule--ink">
+    <div style="font-size:var(--fs-caption);color:var(--slate);margin-bottom:12px;font-family:var(--font-cjk);">参考汇率：USD/CNY 7.25 &nbsp;·&nbsp; HKD/CNY 0.93 &nbsp;·&nbsp; JPY/CNY 23.62 &nbsp;·&nbsp; 换算仅供参考，随市场汇率浮动</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--ink);margin-bottom:40px;">
+      <div style="padding:20px 22px;border-right:1px solid var(--hairline);">
+        <div style="font-size:var(--fs-eyebrow);letter-spacing:.2em;text-transform:uppercase;color:var(--claret);margin-bottom:10px;">不动产</div>
+        <div style="font-family:var(--font-display);font-size:22px;font-weight:600;font-variant-numeric:tabular-nums;margin-bottom:2px;">¥22,468,828+</div>
+        <div style="font-size:var(--fs-caption);color:var(--slate);margin-bottom:16px;">CNY 购置价（大陆7处）· 日本价格待补</div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;border-bottom:1px solid var(--hairline);font-size:var(--fs-small);">
+          <span style="color:var(--ink-soft);font-family:var(--font-cjk);">年净租金（大陆+日本）</span>
+          <span><span style="font-family:var(--font-display);font-variant-numeric:tabular-nums;color:var(--pos);">¥1,725,487</span><span style="font-size:var(--fs-caption);color:var(--slate);margin-left:4px;">CNY</span></span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;border-bottom:1px solid var(--hairline);font-size:var(--fs-small);">
+          <span style="color:var(--ink-soft);font-family:var(--font-cjk);">月净收入</span>
+          <span><span style="font-family:var(--font-display);font-variant-numeric:tabular-nums;color:var(--pos);">¥143,791</span><span style="font-size:var(--fs-caption);color:var(--slate);margin-left:4px;">CNY</span></span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;font-size:var(--fs-small);">
+          <span style="color:var(--ink-soft);font-family:var(--font-cjk);">物业数</span>
+          <span style="font-family:var(--font-display);font-variant-numeric:tabular-nums;">9 处</span>
+        </div>
+      </div>
+      <div style="padding:20px 22px;border-right:1px solid var(--hairline);">
+        <div style="font-size:var(--fs-eyebrow);letter-spacing:.2em;text-transform:uppercase;color:var(--claret);margin-bottom:10px;">股票 / 基金</div>
+        <div style="font-family:var(--font-display);font-size:22px;font-weight:600;font-variant-numeric:tabular-nums;margin-bottom:2px;">¥337,132,648</div>
+        <div style="font-size:var(--fs-caption);color:var(--slate);margin-bottom:16px;">≈ USD 46.5M &nbsp;·&nbsp; CNY 换算合计（成本/市价）</div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;border-bottom:1px solid var(--hairline);font-size:var(--fs-small);">
+          <span style="color:var(--ink-soft);font-family:var(--font-cjk);">達芙妮 (Lucky Earn)</span>
+          <span><span style="font-family:var(--font-display);font-variant-numeric:tabular-nums;">USD 45,479,207</span><span style="display:block;text-align:right;font-size:var(--fs-caption);color:var(--slate);">≈ ¥329,724,251</span></span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;border-bottom:1px solid var(--hairline);font-size:var(--fs-small);">
+          <span style="color:var(--ink-soft);font-family:var(--font-cjk);">港股三只 (For Lucky)</span>
+          <span><span style="font-family:var(--font-display);font-variant-numeric:tabular-nums;">HKD 3,428,540</span><span style="display:block;text-align:right;font-size:var(--fs-caption);color:var(--slate);">≈ ¥3,188,542</span></span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;font-size:var(--fs-small);">
+          <span style="color:var(--ink-soft);font-family:var(--font-cjk);">基金 (For Lucky 台灣)</span>
+          <span><span style="font-family:var(--font-display);font-variant-numeric:tabular-nums;">USD 582,049</span><span style="display:block;text-align:right;font-size:var(--fs-caption);color:var(--slate);">≈ ¥4,219,855</span></span>
+        </div>
+      </div>
+      <div style="padding:20px 22px;">
+        <div style="font-size:var(--fs-eyebrow);letter-spacing:.2em;text-transform:uppercase;color:var(--claret);margin-bottom:10px;">现金</div>
+        <div style="font-family:var(--font-display);font-size:22px;font-weight:600;font-variant-numeric:tabular-nums;margin-bottom:2px;">¥11,512,097</div>
+        <div style="font-size:var(--fs-caption);color:var(--slate);margin-bottom:16px;">≈ USD 1.59M &nbsp;·&nbsp; CNY 换算合计</div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;border-bottom:1px solid var(--hairline);font-size:var(--fs-small);">
+          <span style="color:var(--ink-soft);font-family:var(--font-cjk);">Lucky Earn</span>
+          <span><span style="font-family:var(--font-display);font-variant-numeric:tabular-nums;">USD 1,397,017</span><span style="display:block;text-align:right;font-size:var(--fs-caption);color:var(--slate);">≈ ¥10,128,373</span></span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;border-bottom:1px solid var(--hairline);font-size:var(--fs-small);">
+          <span style="color:var(--ink-soft);font-family:var(--font-cjk);">For Lucky 境外</span>
+          <span><span style="font-family:var(--font-display);font-variant-numeric:tabular-nums;">USD 90,892</span><span style="display:block;text-align:right;font-size:var(--fs-caption);color:var(--slate);">≈ ¥659,017</span></span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;font-size:var(--fs-small);">
+          <span style="color:var(--ink-soft);font-family:var(--font-cjk);">For Lucky 台灣</span>
+          <span><span style="font-family:var(--font-display);font-variant-numeric:tabular-nums;">USD 99,932</span><span style="display:block;text-align:right;font-size:var(--fs-caption);color:var(--slate);">≈ ¥724,507</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ③ 三地汇总表 -->
+    <div class="block-head"><h3 class="sub-title">三地汇总</h3><span class="en">Consolidated Summary — Real Estate</span></div>
+    <div style="overflow-x:auto;margin-bottom:40px;">
+    <table class="ftable">
+      <thead>
+        <tr>
+          <th>区域 / Region</th><th>物业数</th><th>购置价 / 基数 ¥</th><th>年净租金 ¥</th><th style="text-align:left">状态</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>中国大陆<span class="meta cjk">上海 · 漯河 · 成都</span></td>
+          <td class="num">7</td><td class="num">22,468,828 +</td><td class="num pos">1,529,579</td><td class="txt"></td>
+        </tr>
+        <tr>
+          <td>日本<span class="meta cjk">大阪 · 心斎橋</span></td>
+          <td class="num">2</td><td class="pending">—</td><td class="num pos">195,876</td><td class="txt"></td>
+        </tr>
+        <tr>
+          <td>台湾<span class="meta cjk">待补充</span></td>
+          <td class="pending">待补充</td><td class="pending">待估值 —</td><td class="pending">待确认 —</td><td class="txt"><span class="tag pending">待补充</span></td>
+        </tr>
+        <tr class="total">
+          <td class="txt">家族合计 / Total</td>
+          <td class="num">9 +</td><td class="num">22,468,828 +</td><td class="num pos">1,725,487</td><td class="txt" style="font-weight:400">部分待确认</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+
+    <!-- ④ 三地区域卡片 -->
+    <div class="block-head"><span class="eyebrow eyebrow--slate" style="margin:0">Holdings by Region</span><span class="en">三地资产</span></div>
+    <div class="region-grid">
+      <div class="region">
+        <div class="r-eyebrow">China &amp; Japan · 中国及日本</div>
+        <h4>中国大陆及日本</h4>
+        <div class="r-en">Shanghai · Henan · Chengdu · Osaka</div>
+        <div class="r-line"><span class="l">物业数量</span><span class="v num">9 <span style="font-size:var(--fs-caption);font-weight:400;color:var(--slate)">(大陆7·日本2)</span></span></div>
+        <div class="r-line"><span class="l">购置价合计</span><span class="v num">¥2,247万+ <span style="font-size:var(--fs-caption);font-weight:400;color:var(--slate)">(大陆)</span></span></div>
+        <div class="r-line"><span class="l">月净租金</span><span class="v num pos">¥143,791 <span style="font-size:var(--fs-caption);font-weight:400;color:var(--slate)">(含日本)</span></span></div>
+      </div>
+      <div class="region">
+        <div class="r-eyebrow">Overseas · 境外</div>
+        <h4>境外金融资产</h4>
+        <div class="r-en">Lucky Earn · For Lucky · BVI / HK</div>
+        <div class="r-line"><span class="l">合并净资产</span><span class="v num pos">USD 31,518,311</span></div>
+        <div class="r-line"><span class="l">核心持仓</span><span class="v num" style="font-family:var(--font-cjk);font-size:var(--fs-small)">達芙妮 4.45亿股</span></div>
+        <div class="r-line"><span class="l">2025税后收入</span><span class="v num pos">USD 1,414,115</span></div>
+      </div>
+      <div class="region">
+        <div class="r-eyebrow">Taiwan · 台湾</div>
+        <h4>台湾资产</h4>
+        <div class="r-en">Holdings · Succession</div>
+        <div class="r-line"><span class="l">资产明细</span><span class="v pending">待补充 —</span></div>
+        <div class="r-line"><span class="l">传承风险</span><span class="v" style="color:var(--claret);font-family:var(--font-cjk)">关注</span></div>
+        <div class="r-line"><span class="l">税务事项</span><span class="v" style="color:var(--claret);font-family:var(--font-cjk)">待评估</span></div>
+      </div>
+    </div>
+
+    <!-- ⑤ 家族资产结构（可折叠） -->
+    <div class="block-head" style="margin-top:32px;"><h3 class="sub-title">家族资产结构</h3><span class="en">Holding Structure</span></div>
+    <details class="tree-accordion" open>
+      <summary class="tree-summary">
+        <span style="font-family:var(--font-cjk);font-size:var(--fs-small);color:var(--ink-soft);">张氏家族办公室 · The Chang Family Office</span>
+        <span class="tree-chevron">▾</span>
+      </summary>
+      <div class="tree">
+        <div class="node l0"><span>张氏家族办公室 · The Chang Family Office</span><span style="font-family:var(--font-text);font-size:var(--fs-caption);color:var(--slate);letter-spacing:.04em">Lucky Earn Investment Ltd</span></div>
+
+        <details class="node-group" open>
+          <summary class="node l1 node-toggle">中国大陆及日本 · China &amp; Japan<span class="val">9 处物业 · ¥2,247万+</span><span class="node-chevron">▾</span></summary>
+          <div class="node l2">虹桥豪苑 39A — 张智乔 Nelson（住宅）</div>
+          <div class="node l2">美丽园 28E / 28D / 28B — 张智凯·张智乔 共有（住宅）</div>
+          <div class="node l2">河南漯河商铺 — 张椀绚 Michelle（商铺）</div>
+          <div class="node l2">成都 3701 — 张永顺投资咨询(成都)有限公司（办公）</div>
+          <div class="node l2">成都3702 — 张永顺投资咨询(成都)有限公司（办公）</div>
+          <div class="node l2">大阪 ブランズタワー N-1703 / N-2203（住宅塔楼）</div>
+        </details>
+
+        <details class="node-group" open>
+          <summary class="node l1 node-toggle">台湾 · Taiwan<span class="val pending">不动产待补充</span><span class="node-chevron">▾</span></summary>
+          <div class="node l2">不动产明细待补充</div>
+        </details>
+
+        <details class="node-group" open>
+          <summary class="node l1 node-toggle">Lucky Earn Investment Ltd（境外）<span class="val">净资产 USD 31,030,813</span><span class="node-chevron">▾</span></summary>
+          <div class="node l2">達芙妮 Daphne (0210) — 444,608,905 股（成本 USD 45,479,207）</div>
+          <div class="node l2">新鴻基 Sun Hung Kai (0016) — 10,000 股（少量）</div>
+          <div class="node l2">USD 定存 + HKD/SGD 现金 — USD ~1.4M</div>
+        </details>
+
+        <details class="node-group" open>
+          <summary class="node l1 node-toggle">For Lucky Investment Ltd（境外 + 台灣）<span class="val">净资产 USD 487,498</span><span class="node-chevron">▾</span></summary>
+          <div class="node l2">港股：長和 / 阿里巴巴 / 金山软件（市值 HKD 3,428,540）</div>
+          <div class="node l2">台灣：富坦新固月 / JPM俄羅斯 / JPM美科 共4笔（含手续费 USD 582,049）</div>
+          <div class="node l2">现金 USD ~191K（境外 + 台灣合计）</div>
+        </details>
+      </div>
+    </details>
+
+    <!-- ⑥-A 中国大陆不动产构成 -->
+    <details class="chart-accordion" open>
+      <summary class="chart-summary" style="margin-top:40px;">
+        <div class="block-head" style="margin:0;border:none;padding:0;"><h3 class="sub-title" style="margin:0;">中国大陆不动产构成</h3><span class="en">Mainland China — Real Estate Breakdown</span></div>
+        <span class="tree-chevron">▾</span>
+      </summary>
+      <hr class="rule rule--ink">
+      <div class="chart-grid">
+        <div>
+          <div class="chart-box"><canvas id="chartRegion" height="260"></canvas></div>
+          <p class="chart-cap">各物业购置价分布（6套已知，虹桥豪苑39A待补充）</p>
+        </div>
+        <div>
+          <ul class="legend" id="catLegend"></ul>
+          <div class="chart-box" style="margin-top:8px"><canvas id="chartCategory" height="220"></canvas></div>
+          <p class="chart-cap">物业类型占比 — 住宅 / 商铺 / 办公</p>
+        </div>
+      </div>
+    </details>
+
+    <!-- ⑥-B 境外资产构成 -->
+    <details class="chart-accordion" open>
+      <summary class="chart-summary" style="margin-top:40px;">
+        <div class="block-head" style="margin:0;border:none;padding:0;"><h3 class="sub-title" style="margin:0;">境外资产构成</h3><span class="en">Overseas — Asset Allocation (Lucky Earn + For Lucky)</span></div>
+        <span class="tree-chevron">▾</span>
+      </summary>
+      <hr class="rule rule--ink">
+      <div class="chart-grid">
+        <div>
+          <div class="chart-box"><canvas id="chartOverseas" height="260"></canvas></div>
+          <p class="chart-cap">境外两实体合并持仓（达芙妮以成本价列示，未更新市价）</p>
+        </div>
+        <div style="display:flex;flex-direction:column;justify-content:center;gap:20px;">
+          <ul class="legend" id="overseasLegend"></ul>
+          <!-- 净资产汇总 -->
+          <div style="border-top:1px solid var(--hairline);padding-top:14px;min-width:220px;">
+            <div style="font-size:var(--fs-eyebrow);letter-spacing:.16em;text-transform:uppercase;color:var(--slate);margin-bottom:10px;">净资产 · Net Equity</div>
+            <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--hairline);font-size:var(--fs-small);">
+              <span style="font-family:var(--font-cjk);color:var(--ink-soft);">Lucky Earn Investment Ltd</span>
+              <span style="font-family:var(--font-display);font-variant-numeric:tabular-nums;color:var(--pos);">USD 31,030,813</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--hairline);font-size:var(--fs-small);">
+              <span style="font-family:var(--font-cjk);color:var(--ink-soft);">For Lucky 境外</span>
+              <span style="font-family:var(--font-display);font-variant-numeric:tabular-nums;color:var(--pos);">USD 352,812</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--hairline);font-size:var(--fs-small);">
+              <span style="font-family:var(--font-cjk);color:var(--ink-soft);">For Lucky 台灣</span>
+              <span style="font-family:var(--font-display);font-variant-numeric:tabular-nums;color:var(--pos);">USD 134,686</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:7px 0;font-size:var(--fs-small);font-weight:600;">
+              <span style="font-family:var(--font-cjk);">合计 / Total</span>
+              <span style="font-family:var(--font-display);font-variant-numeric:tabular-nums;color:var(--pos);">USD 31,518,311</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </details>
+
+
+  </section>
+
+
+  <section class="panel" id="china">
+    <div class="section-header">
+      <span class="eyebrow">02 — Mainland China</span>
+      <h2 class="section-title">中国大陆资产</h2>
+      <p class="lead">共 7 处物业，上海（4）· 河南漯河（1）· 成都（2）；另有日本大阪 2 套。</p>
+    </div>
+
+    <div class="block-head"><h3 class="sub-title">租赁损益统计</h3><span class="en">Lease Income &amp; Profit</span></div>
+    <div style="overflow-x:auto">
+    <table class="ftable">
+      <thead>
+        <tr>
+          <th>物业 / 承租人</th>
+          <th>月租金 ¥</th>
+          <th style="text-align:left">支付 / 合同期</th>
+          <th style="text-align:left">归属</th>
+          <th>月净收入 ¥</th>
+          <th>年租金回报率<br><span class="zh">Annual Yield</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="subhead"><td colspan="6">中国大陆 · Mainland China</td></tr>
+        <tr>
+          <td>虹桥豪苑 39A<span class="meta cjk">李钰、Timothy Cunningham</span></td>
+          <td class="num">30,000.00</td>
+          <td class="txt">月付<span class="meta">2025/7/1–2027/6/30</span></td>
+          <td class="txt"><span class="owner-tag">Nelson</span></td>
+          <td class="num pos">28,896.00</td>
+          <td class="num">—<span class="meta">购置价待补充</span></td>
+        </tr>
+        <tr>
+          <td>美丽园 28E<span class="meta cjk">刘洪伟</span></td>
+          <td class="num">15,000.00</td>
+          <td class="txt">季付<span class="meta">2026/1/1–2026/12/31</span></td>
+          <td class="txt"><span class="owner-tag">Nelson</span></td>
+          <td class="num pos">14,047.70</td>
+          <td class="num pos">4.7%</td>
+        </tr>
+        <tr>
+          <td>美丽园 28D<span class="meta cjk">颜廷运</span></td>
+          <td class="num">16,500.00</td>
+          <td class="txt">2 月付<span class="meta">2025/12/25–2027/12/24</span></td>
+          <td class="txt"><span class="owner-tag">Michelle</span></td>
+          <td class="num pos">15,690.55</td>
+          <td class="num pos">6.1%</td>
+        </tr>
+        <tr>
+          <td>美丽园 28B<span class="meta cjk">Nicholas Quagliozzi</span></td>
+          <td class="num">22,000.00</td>
+          <td class="txt">2 月付<span class="meta">2025/6/2–2027/6/1</span></td>
+          <td class="txt"><span class="owner-tag">Kevin</span></td>
+          <td class="num pos">20,396.58</td>
+          <td class="num pos">6.0%</td>
+        </tr>
+        <tr>
+          <td>河南漯河商铺<span class="meta cjk">河南迈乐加餐厅(麦当劳)</span></td>
+          <td class="num">32,156.25</td>
+          <td class="txt">年付<span class="meta">2018/6/10–2030/6/9</span></td>
+          <td class="txt"><span class="owner-tag">Michelle</span></td>
+          <td class="num pos">24,110.76</td>
+          <td class="num pos">21.0%<span class="meta cjk">(2008年购入，成本基数低)</span></td>
+        </tr>
+        <tr>
+          <td>成都 3701<span class="meta cjk">四川凌巨发展信息科技有限公司</span></td>
+          <td class="num">13,365.55</td>
+          <td class="txt">2 月付<span class="meta">2026/3/1–2029/2/28</span></td>
+          <td class="txt"><span class="owner-tag">成都公司</span></td>
+          <td class="num pos">13,365.55</td>
+          <td class="num pos">3.8%</td>
+        </tr>
+        <tr>
+          <td>成都3702<span class="meta cjk">上海懂美因私出入境服务有限公司成都分公司</span></td>
+          <td class="num">10,957.80</td>
+          <td class="txt">季付<span class="meta">2025/8/1–2030/7/31</span></td>
+          <td class="txt"><span class="owner-tag">成都公司</span></td>
+          <td class="num pos">10,957.80</td>
+          <td class="num pos">4.0%</td>
+        </tr>
+        <tr style="border-top:1px solid var(--hairline-strong)">
+          <td class="txt" style="color:var(--slate);font-size:var(--fs-caption)">大陆小计 / Mainland Subtotal</td>
+          <td class="num" style="color:var(--slate);font-size:var(--fs-caption)">139,979.60</td>
+          <td class="txt">—</td>
+          <td class="txt">—</td>
+          <td class="num pos" style="color:var(--slate);font-size:var(--fs-caption)">127,464.94</td>
+          <td class="num pos" style="color:var(--slate);font-size:var(--fs-caption)">6.8%<span class="meta cjk">加权平均(已知6套)</span></td>
+        </tr>
+        <tr class="subhead"><td colspan="6">日本 · Japan · 大阪心斎橋（CNY换算，汇率参考）</td></tr>
+        <tr>
+          <td>大阪心斋桥 1703<span class="meta cjk">ブランズタワー・ウェリス心斎橋NORTH · 柿内 順子</span></td>
+          <td class="num">10,944<span class="meta">¥258,500 JPY ÷ 23.62</span></td>
+          <td class="txt">不定期<span class="meta">2024/4/20–</span></td>
+          <td class="txt"><span class="owner-tag">Nelson</span></td>
+          <td class="num pos">8,070<span class="meta">扣物业費¥2,165 · 税¥709</span></td>
+          <td class="num">—</td>
+        </tr>
+        <tr>
+          <td>大阪心斋桥 2203<span class="meta cjk">ブランズタワー・ウェリス心斎橋NORTH · 西上智志</span></td>
+          <td class="num">11,143<span class="meta">¥263,200 JPY ÷ 23.62</span></td>
+          <td class="txt">不定期<span class="meta">2020/6/23–</span></td>
+          <td class="txt"><span class="owner-tag">Nelson</span></td>
+          <td class="num pos">8,256<span class="meta">扣物业費¥2,178 · 税¥709</span></td>
+          <td class="num">—</td>
+        </tr>
+        <tr class="total">
+          <td class="txt">月度合计 / Monthly Total</td>
+          <td class="num">162,067</td>
+          <td class="txt">—</td>
+          <td class="txt">—</td>
+          <td class="num pos">143,791</td>
+          <td class="num pos" style="font-weight:400">—</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+
+    <div class="stat-grid" style="margin-top:28px">
+      <div class="stat"><div class="stat-figure small num">¥162,067</div><div class="stat-label">Monthly Rent<span class="zh">月租金合计（含日本）</span></div></div>
+      <div class="stat"><div class="stat-figure small num pos">¥143,791</div><div class="stat-label">Monthly Net<span class="zh">月净收入（含日本）</span></div></div>
+      <div class="stat"><div class="stat-figure small num">¥194.48万</div><div class="stat-label">Annual Rent (Pre-tax)<span class="zh">税前年度租金（含日本）</span></div></div>
+      <div class="stat"><div class="stat-figure small num pos">¥172.5万</div><div class="stat-label">Annual Net (Post-tax)<span class="zh">税后年度净额（含日本）</span></div></div>
+    </div>
+
+    <div class="block-head"><h3 class="sub-title">月度租金明细</h3><span class="en">Monthly Rent Breakdown</span></div>
+
+    <!-- 左右两栏：大陆 | 日本 -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--ink);margin-bottom:0;">
+
+      <!-- 左栏：中国大陆 -->
+      <div style="border-right:1px solid var(--hairline);padding-right:32px;">
+        <div style="font-size:var(--fs-eyebrow);letter-spacing:.18em;text-transform:uppercase;color:var(--claret);padding:14px 0 10px;">中国大陆</div>
+        <table class="ftable" style="font-size:var(--fs-small);">
+          <tbody>
+            <tr>
+              <td class="txt">月租金合计（税前）</td>
+              <td class="num">139,979.60</td>
+            </tr>
+            <tr>
+              <td class="txt">减：物业管理费<span class="meta cjk">虹桥¥1,104 + 28E¥952.30 + 28D¥809.45 + 28B¥1,079.42</span></td>
+              <td class="num neg">-3,945.17</td>
+            </tr>
+            <tr>
+              <td class="txt">减：税负<span class="meta cjk">28B增值税¥524 + 漯河¥8,045.49</span></td>
+              <td class="num neg">-8,569.49</td>
+            </tr>
+            <tr class="total">
+              <td class="txt">大陆月净收入</td>
+              <td class="num pos">127,464.94</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 右栏：日本 -->
+      <div style="padding-left:32px;">
+        <div style="font-size:var(--fs-eyebrow);letter-spacing:.18em;text-transform:uppercase;color:var(--claret);padding:14px 0 10px;">日本 · Japan <span style="font-weight:400;letter-spacing:.06em;">（CNY，汇率 23.62）</span></div>
+        <table class="ftable" style="font-size:var(--fs-small);">
+          <tbody>
+            <tr>
+              <td class="txt">1703 租金<span class="meta cjk">JPY ¥258,500 ÷ 23.62</span></td>
+              <td class="num">10,944.12</td>
+            </tr>
+            <tr>
+              <td class="txt">减：物业費 + 税<span class="meta cjk">¥2,165.11 + ¥709.32</span></td>
+              <td class="num neg">-2,874.44</td>
+            </tr>
+            <tr>
+              <td class="txt">2203 租金<span class="meta cjk">JPY ¥263,200 ÷ 23.62</span></td>
+              <td class="num">11,143.10</td>
+            </tr>
+            <tr>
+              <td class="txt">减：物业費 + 税<span class="meta cjk">¥2,177.82 + ¥709.32</span></td>
+              <td class="num neg">-2,887.14</td>
+            </tr>
+            <tr class="total">
+              <td class="txt">日本月净收入</td>
+              <td class="num pos">16,325.64</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- 收入归属占比 -->
+        <div style="margin-top:24px;border-top:1px solid var(--hairline);padding-top:16px;">
+          <div style="font-size:var(--fs-eyebrow);letter-spacing:.16em;text-transform:uppercase;color:var(--slate);margin-bottom:12px;">收入归属占比 · Income Attribution</div>
+          <div style="font-size:var(--fs-caption);color:var(--slate);margin-bottom:10px;">月净收入合计 ¥143,791（大陆 + 日本）</div>
+
+          <!-- Nelson -->
+          <div style="margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;font-size:var(--fs-small);margin-bottom:3px;">
+              <span style="font-family:var(--font-cjk);">Nelson <span style="color:var(--slate);font-size:var(--fs-caption);">虹桥39A · 28E · 日本½</span></span>
+              <span style="font-family:var(--font-display);font-variant-numeric:tabular-nums;color:var(--pos);">¥51,107 <span style="color:var(--slate);font-weight:400;">35.54%</span></span>
+            </div>
+            <div style="height:4px;background:var(--hairline);border-radius:0;"><div style="height:4px;width:35.54%;background:var(--data-1);"></div></div>
+          </div>
+
+          <!-- Michelle -->
+          <div style="margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;font-size:var(--fs-small);margin-bottom:3px;">
+              <span style="font-family:var(--font-cjk);">Michelle <span style="color:var(--slate);font-size:var(--fs-caption);">28D · 漯河</span></span>
+              <span style="font-family:var(--font-display);font-variant-numeric:tabular-nums;color:var(--pos);">¥39,801 <span style="color:var(--slate);font-weight:400;">27.68%</span></span>
+            </div>
+            <div style="height:4px;background:var(--hairline);border-radius:0;"><div style="height:4px;width:27.68%;background:var(--data-2);"></div></div>
+          </div>
+
+          <!-- Kevin -->
+          <div style="margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;font-size:var(--fs-small);margin-bottom:3px;">
+              <span style="font-family:var(--font-cjk);">Kevin <span style="color:var(--slate);font-size:var(--fs-caption);">28B · 日本½</span></span>
+              <span style="font-family:var(--font-display);font-variant-numeric:tabular-nums;color:var(--pos);">¥28,559 <span style="color:var(--slate);font-weight:400;">19.86%</span></span>
+            </div>
+            <div style="height:4px;background:var(--hairline);border-radius:0;"><div style="height:4px;width:19.86%;background:var(--data-3);"></div></div>
+          </div>
+
+          <!-- 成都公司 -->
+          <div style="margin-bottom:4px;">
+            <div style="display:flex;justify-content:space-between;font-size:var(--fs-small);margin-bottom:3px;">
+              <span style="font-family:var(--font-cjk);">成都公司 <span style="color:var(--slate);font-size:var(--fs-caption);">3701 · 3702</span></span>
+              <span style="font-family:var(--font-display);font-variant-numeric:tabular-nums;color:var(--pos);">¥24,323 <span style="color:var(--slate);font-weight:400;">16.92%</span></span>
+            </div>
+            <div style="height:4px;background:var(--hairline);border-radius:0;"><div style="height:4px;width:16.92%;background:var(--data-4);"></div></div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 合计行 -->
+    <div style="border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);display:flex;justify-content:space-between;padding:11px 0;margin-top:0;">
+      <span style="font-family:var(--font-cjk);font-weight:700;font-size:var(--fs-small);">月净收入合计（大陆 + 日本）</span>
+      <span style="font-family:var(--font-display);font-weight:700;font-variant-numeric:tabular-nums;color:var(--pos);">143,790.58</span>
+    </div>
+
+    <div class="block-head"><h3 class="sub-title">合约到期明细</h3><span class="en">Lease Expiry Schedule</span><span class="tag pending">Watch · 跟进</span></div>
+    <div style="overflow-x:auto">
+    <table class="ftable">
+      <thead>
+        <tr>
+          <th>物业 / Property</th>
+          <th style="text-align:left">承租人 / Tenant</th>
+          <th style="text-align:left">到期日 / Expiry</th>
+          <th style="text-align:left">距今 / In</th>
+          <th style="text-align:left">状态 / Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="color:var(--claret)">美丽园 28E</td>
+          <td class="txt" style="color:var(--claret)">刘洪伟</td>
+          <td class="txt neg">2026/12/31</td>
+          <td class="txt" style="color:var(--claret)">约6个月</td>
+          <td class="txt"><span class="tag pending">⚠ 急需跟进</span></td>
+        </tr>
+        <tr>
+          <td>美丽园 28B</td>
+          <td class="txt">Nicholas Quagliozzi</td>
+          <td class="txt">2027/06/01</td>
+          <td class="txt">约12个月</td>
+          <td class="txt">留意</td>
+        </tr>
+        <tr>
+          <td>虹桥豪苑 39A</td>
+          <td class="txt">李钰·Timothy</td>
+          <td class="txt">2027/06/30</td>
+          <td class="txt">约13个月</td>
+          <td class="txt">留意</td>
+        </tr>
+        <tr>
+          <td>美丽园 28D</td>
+          <td class="txt">颜廷运</td>
+          <td class="txt">2027/12/24</td>
+          <td class="txt">约18个月</td>
+          <td class="txt">正常</td>
+        </tr>
+        <tr>
+          <td>成都 3701</td>
+          <td class="txt">四川凌巨</td>
+          <td class="txt">2029/02/28</td>
+          <td class="txt">约33个月</td>
+          <td class="txt">正常</td>
+        </tr>
+        <tr>
+          <td>河南漯河商铺</td>
+          <td class="txt">河南迈乐加(麦当劳)</td>
+          <td class="txt">2030/06/09</td>
+          <td class="txt">约48个月</td>
+          <td class="txt">正常</td>
+        </tr>
+        <tr>
+          <td>成都3702</td>
+          <td class="txt">上海懂美因私出入境</td>
+          <td class="txt">2030/07/31</td>
+          <td class="txt">约49个月</td>
+          <td class="txt">正常</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+
+    <div class="block-head"><h3 class="sub-title">物业明细</h3><span class="en">Property Register</span></div>
+    <div style="overflow-x:auto">
+    <table class="ftable">
+      <thead>
+        <tr>
+          <th>物业 / Property</th>
+          <th style="text-align:left">持有主体 / 类型</th>
+          <th>建筑面积 ㎡</th>
+          <th>购置价 ¥</th>
+          <th style="text-align:left">产权证号 / 到期</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>虹桥豪苑 39A<span class="meta cjk">上海长宁紫云路118弄1号39A</span></td>
+          <td class="txt">张智乔 Nelson<span class="meta">住宅 Residential</span></td>
+          <td class="num">223.03</td>
+          <td class="pending">待补充 —</td>
+          <td class="txt">沪房地长字(2008)第001511号<span class="meta">产权至 2065/12/14</span></td>
+        </tr>
+        <tr>
+          <td>长宁美丽园 28E<span class="meta cjk">上海静安镇宁路168号28E</span></td>
+          <td class="txt">张智凯 / 张智乔 共有<span class="meta">住宅 Residential</span></td>
+          <td class="num">193.00</td>
+          <td class="num">3,809,200</td>
+          <td class="txt">沪房地静字(2005)第002586号</td>
+        </tr>
+        <tr>
+          <td>长宁美丽园 28D<span class="meta cjk">上海静安镇宁路168号28D</span></td>
+          <td class="txt">张智凯 / 张智乔 共有<span class="meta">住宅 Residential</span></td>
+          <td class="num">161.89</td>
+          <td class="num">3,237,800</td>
+          <td class="txt">沪房地静字(2005)第002586号</td>
+        </tr>
+        <tr>
+          <td>长宁美丽园 28B<span class="meta cjk">上海静安镇宁路168号28B</span></td>
+          <td class="txt">张智凯 / 张智乔 共有<span class="meta">住宅 Residential</span></td>
+          <td class="num">218.37</td>
+          <td class="num">4,367,400</td>
+          <td class="txt">沪房地静字(2005)第002586号</td>
+        </tr>
+        <tr>
+          <td>河南漯河商铺<span class="meta cjk">漯河人民路中汇广场3#楼</span></td>
+          <td class="txt">张椀绚 Michelle<span class="meta">商铺 Retail</span></td>
+          <td class="num">121.42</td>
+          <td class="num">3,504,474</td>
+          <td class="txt">漯河市房权证源汇区字第20080004304号<span class="meta">产权至 2044/4/1</span></td>
+        </tr>
+        <tr>
+          <td>成都 3701<span class="meta cjk">成都锦江东大街芷泉段68号2栋37楼3701</span></td>
+          <td class="txt">张永顺投资咨询(成都)有限公司<span class="meta">办公 Office</span></td>
+          <td class="num">243.01</td>
+          <td class="num">4,252,850</td>
+          <td class="txt">川(2023)成都不动产权第0283235号<span class="meta">产权至 2045/8/9</span></td>
+        </tr>
+        <tr>
+          <td>成都3702<span class="meta cjk">成都市锦江区东大街芷泉段68号2栋37楼3702</span></td>
+          <td class="txt">张永顺投资咨询(成都)有限公司<span class="meta">办公 Office</span></td>
+          <td class="num">182.63</td>
+          <td class="num">3,297,104</td>
+          <td class="txt">川(2023)成都不动产权第0280865号<span class="meta">产权至 2045/8/9</span></td>
+        </tr>
+        <tr class="total">
+          <td class="txt">合计 7 处 / Total</td>
+          <td class="txt">—</td>
+          <td class="num">1,343.35</td>
+          <td class="num">22,468,828 +</td>
+          <td class="txt" style="font-weight:400">39A 购置价待补充</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    <p class="chart-cap">购置价合计 ¥19,171,724（不含虹桥豪苑 39A，其购置价待补充）。当前市场估值待评估后另行填入。</p>
+
+    <div class="block-head"><h3 class="sub-title">日本物业</h3><span class="en">Japan · Osaka</span></div>
+    <div style="overflow-x:auto">
+    <table class="ftable">
+      <thead>
+        <tr>
+          <th>物业 / Property</th>
+          <th style="text-align:left">承租人 / Tenant</th>
+          <th>月租 (JPY)</th>
+          <th style="text-align:left">合同期</th>
+          <th>月净 (JPY)</th>
+          <th>月净 (CNY换算)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>大阪心斋桥1703<span class="meta cjk">ブランズタワー・ウェリス心斎橋NORTH 1703号</span></td>
+          <td class="txt">柿内 順子</td>
+          <td class="num">¥258,500</td>
+          <td class="txt">2024/4/20–<span class="meta cjk">不定期</span></td>
+          <td class="num pos">¥253,500<span class="meta cjk">扣BOB管理費¥5,000</span></td>
+          <td class="num pos">¥8,070<span class="meta cjk">扣物业費+税后</span></td>
+        </tr>
+        <tr>
+          <td>大阪心斋桥2203<span class="meta cjk">ブランズタワー・ウェリス心斎橋NORTH 2203号</span></td>
+          <td class="txt">西上智志</td>
+          <td class="num">¥263,200</td>
+          <td class="txt">2020/6/23–<span class="meta cjk">不定期</span></td>
+          <td class="num pos">¥258,200<span class="meta cjk">扣BOB管理費¥5,000</span></td>
+          <td class="num pos">¥8,256<span class="meta cjk">扣物业費+税后</span></td>
+        </tr>
+        <tr class="total">
+          <td class="txt">合计 2 套 / Total</td>
+          <td class="txt">—</td>
+          <td class="num">¥521,700</td>
+          <td class="txt">—</td>
+          <td class="num pos">¥511,700</td>
+          <td class="num pos">¥16,326</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="callout">
+      <p>日本両物业由BOB不動産代管（每户¥5,000 JPY/月）。租金以日元计，CNY换算金额为参考值，随汇率浮动。</p>
+    </div>
+  </section>
+
+  <!-- ════════ 3. OVERSEAS ════════ -->
+  <section class="panel" id="overseas">
+    <div class="section-header">
+      <span class="eyebrow">03 — Overseas</span>
+      <h2 class="section-title">境外资产</h2>
+      <p class="lead">两家境外实体持仓汇总，含港股、基金及现金。数据截至 2025/12/31 财务报告期。</p>
+    </div>
+
+    <!-- ── KPI 汇总带 ── -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--ink);margin-bottom:40px;">
+      <div style="padding:16px 18px;border-right:1px solid var(--hairline);">
+        <div style="font-size:var(--fs-eyebrow);letter-spacing:.16em;text-transform:uppercase;color:var(--slate);margin-bottom:6px;">两家实体总资产</div>
+        <div style="font-family:var(--font-display);font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink);">USD 58,127,563</div>
+      </div>
+      <div style="padding:16px 18px;border-right:1px solid var(--hairline);">
+        <div style="font-size:var(--fs-eyebrow);letter-spacing:.16em;text-transform:uppercase;color:var(--slate);margin-bottom:6px;">总负债</div>
+        <div style="font-family:var(--font-display);font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--claret);">USD 26,609,252</div>
+      </div>
+      <div style="padding:16px 18px;border-right:1px solid var(--hairline);">
+        <div style="font-size:var(--fs-eyebrow);letter-spacing:.16em;text-transform:uppercase;color:var(--slate);margin-bottom:6px;">合并净资产</div>
+        <div style="font-family:var(--font-display);font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--pos);">USD 31,518,311</div>
+      </div>
+      <div style="padding:16px 18px;">
+        <div style="font-size:var(--fs-eyebrow);letter-spacing:.16em;text-transform:uppercase;color:var(--slate);margin-bottom:6px;">2025 合计税后收入</div>
+        <div style="font-family:var(--font-display);font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--pos);">USD 1,414,115</div>
+      </div>
+    </div>
+
+    <!-- ══════════ 实体一：Lucky Earn ══════════ -->
+    <div class="block-head">
+      <h3 class="sub-title">Lucky Earn Investment Ltd</h3>
+      <span class="en">瑞盈投资有限公司 · UBS 新加坡 · <span id="le_asOf">数据截至 2026-05-29</span>
+        <button id="le_refreshBtn" type="button" style="margin-left:12px;font-family:var(--font-cjk);font-size:11px;border:1px solid var(--hairline-strong);background:var(--paper);color:var(--ink);padding:3px 10px;border-radius:3px;cursor:pointer;">↻ 刷新数据</button>
+        <span id="le_status" style="margin-left:8px;font-size:11px;color:var(--slate);"></span>
+      </span>
+    </div>
+
+    <!-- ░░ PDF Upload Panel ░░ -->
+    <details id="le_uploadPanel" style="border:1px solid var(--hairline);border-radius:2px;margin-bottom:20px;background:var(--paper);">
+      <summary style="cursor:pointer;padding:12px 16px;font-family:var(--font-cjk);font-size:13px;font-weight:600;color:var(--ink);">📤 上传本月 UBS 报告 · Update Monthly Data</summary>
+      <div style="padding:4px 16px 16px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+          <div>
+            <div style="font-family:var(--font-cjk);font-size:12px;font-weight:600;margin-bottom:6px;">账户 01 PDF <span style="color:var(--slate);font-weight:400;">546-885658-01</span></div>
+            <div id="le_dz01" data-acct="A01" class="le-dropzone" style="border:2px dashed var(--hairline);background:var(--paper);border-radius:4px;padding:22px 12px;text-align:center;cursor:pointer;transition:background .15s;">
+              <div style="font-size:12px;color:var(--slate);font-family:var(--font-cjk);">点击选择或拖拽 PDF（中文报告）</div>
+              <div class="le-fname" style="font-size:12px;color:var(--ink);margin-top:6px;font-variant-numeric:tabular-nums;"></div>
+            </div>
+            <input type="file" id="le_file01" accept="application/pdf" style="display:none;">
+          </div>
+          <div>
+            <div style="font-family:var(--font-cjk);font-size:12px;font-weight:600;margin-bottom:6px;">账户 02 PDF <span style="color:var(--slate);font-weight:400;">546-885658-02</span></div>
+            <div id="le_dz02" data-acct="A02" class="le-dropzone" style="border:2px dashed var(--hairline);background:var(--paper);border-radius:4px;padding:22px 12px;text-align:center;cursor:pointer;transition:background .15s;">
+              <div style="font-size:12px;color:var(--slate);font-family:var(--font-cjk);">点击选择或拖拽 PDF（英文报告）</div>
+              <div class="le-fname" style="font-size:12px;color:var(--ink);margin-top:6px;font-variant-numeric:tabular-nums;"></div>
+            </div>
+            <input type="file" id="le_file02" accept="application/pdf" style="display:none;">
+          </div>
+        </div>
+        <button id="le_parseBtn" type="button" disabled style="font-family:var(--font-cjk);font-size:13px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);padding:8px 18px;border-radius:3px;cursor:pointer;opacity:.45;">解析并预览</button>
+        <button id="le_dumpBtn" type="button" disabled style="font-family:var(--font-cjk);font-size:12px;border:1px solid var(--slate);background:transparent;color:var(--slate);padding:7px 14px;border-radius:3px;cursor:pointer;opacity:.45;margin-left:8px;">显示原始文本</button>
+        <span id="le_parseMsg" style="margin-left:10px;font-size:12px;color:var(--slate);font-family:var(--font-cjk);"></span>
+        <!-- Raw text dump panel -->
+        <div id="le_dumpPanel" style="display:none;margin-top:14px;border:1px solid var(--hairline);border-radius:2px;padding:10px;background:#fafaf8;">
+          <div style="font-size:11px;color:var(--slate);font-family:var(--font-cjk);margin-bottom:6px;">原始文本（供调试用，复制给 AI 以改进解析器）</div>
+          <div style="display:flex;gap:8px;margin-bottom:8px;">
+            <button onclick="document.getElementById('le_dumpA01').style.display=document.getElementById('le_dumpA01').style.display==='none'?'block':'none'" style="font-size:11px;padding:3px 10px;border:1px solid var(--hairline);border-radius:2px;cursor:pointer;background:var(--paper);">账户01 (中文)</button>
+            <button onclick="document.getElementById('le_dumpA02').style.display=document.getElementById('le_dumpA02').style.display==='none'?'block':'none'" style="font-size:11px;padding:3px 10px;border:1px solid var(--hairline);border-radius:2px;cursor:pointer;background:var(--paper);">账户02 (英文)</button>
+          </div>
+          <textarea id="le_dumpA01" style="display:none;width:100%;height:300px;font-family:monospace;font-size:11px;border:1px solid var(--hairline);padding:6px;resize:vertical;white-space:pre;" readonly placeholder="未上传 A01 PDF"></textarea>
+          <textarea id="le_dumpA02" style="display:none;width:100%;height:300px;font-family:monospace;font-size:11px;border:1px solid var(--hairline);padding:6px;resize:vertical;white-space:pre;" readonly placeholder="未上传 A02 PDF"></textarea>
+        </div>
+
+        <!-- Confirmation / edit panel -->
+        <div id="le_confirm" style="display:none;margin-top:18px;border-top:1px solid var(--hairline);padding-top:14px;">
+          <div style="font-family:var(--font-cjk);font-size:12px;font-weight:600;margin-bottom:10px;">确认解析结果（可手动修正）</div>
+          <div style="overflow-x:auto;">
+          <table class="ftable" style="margin-bottom:14px;">
+            <thead><tr>
+              <th style="text-align:left">账户</th><th>月份 YYYY-MM</th><th>净资产 USD</th><th>单月 TWR %</th><th>损益 USD</th><th>资金流 Flow</th>
+            </tr></thead>
+            <tbody id="le_confirmRows"></tbody>
+          </table>
+          </div>
+          <div id="le_holdPreview"></div>
+          <button id="le_saveBtn" type="button" style="font-family:var(--font-cjk);font-size:13px;border:1px solid var(--pos);background:var(--pos);color:#fff;padding:8px 18px;border-radius:3px;cursor:pointer;">确认保存到云端</button>
+          <span id="le_saveMsg" style="margin-left:10px;font-size:12px;color:var(--slate);font-family:var(--font-cjk);"></span>
+        </div>
+      </div>
+    </details>
+
+    <!-- KPI strip -->
+    <div id="le_kpiStrip" style="display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--ink);border-bottom:1px solid var(--hairline);margin-bottom:20px;"></div>
+
+    <!-- Two-column: Account 01 / Account 02 -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
+      <div id="le_acct01Card" style="border:1px solid var(--hairline);padding:16px;border-radius:2px;"></div>
+      <div id="le_acct02Card" style="border:1px solid var(--hairline);padding:16px;border-radius:2px;"></div>
+    </div>
+
+    <!-- Monthly TWR chart -->
+    <div style="border:1px solid var(--hairline);padding:16px;border-radius:2px;margin-bottom:24px;">
+      <div style="font-family:var(--font-cjk);font-size:13px;font-weight:600;color:var(--ink);margin-bottom:12px;">月度 TWR 表现 (%)</div>
+      <div style="height:200px;"><canvas id="ov_leMonthlyTWR"></canvas></div>
+    </div>
+
+    <!-- Monthly accordion -->
+    <div style="margin-bottom:8px;">
+      <div style="font-size:var(--fs-eyebrow);letter-spacing:.18em;text-transform:uppercase;color:var(--claret);margin:0 0 12px;">月度损益明细 Monthly P&L</div>
+      <div id="le_accordion"></div>
+    </div>
+
+    <script>
+    (function(){
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbx9ayyQLWBNyylh86tU0WQwlt4CzRWUNAEry4Ok_iWV-2QaW5AR56jfWkPxxtRvsOd7zA/exec';
+
+    const SEED_MONTHLY = [
+      {month:'2026-01', account:'A01', net_assets:24482455, twr_pct:-0.18, pl_amount:-45197,   flow:0,         note:'达芙妮小幅下跌'},
+      {month:'2026-02', account:'A01', net_assets:23159601, twr_pct:-1.06, pl_amount:-322854,  flow:-1000000,  note:'账户02同月开仓'},
+      {month:'2026-03', account:'A01', net_assets:24380198, twr_pct:2.05,  pl_amount:518276,   flow:702321,    note:'账户01反弹'},
+      {month:'2026-04', account:'A01', net_assets:23881010, twr_pct:1.25,  pl_amount:314018,   flow:-813206,   note:'账户02强劲+10.88%'},
+      {month:'2026-05', account:'A01', net_assets:21918794, twr_pct:-7.19, pl_amount:-1709716, flow:-252500,   note:'达芙妮大跌'},
+      {month:'2026-04', account:'A02', net_assets:1057153,  twr_pct:10.88, pl_amount:103743,   flow:0,         note:''},
+      {month:'2026-05', account:'A02', net_assets:1138390,  twr_pct:7.68,  pl_amount:81237,    flow:0,         note:''},
+    ];
+    const SEED_HOLDINGS = [
+      {as_of_date:'2026-05-29', account:'A01', name:'達芙妮 Daphne (0210.HK)', shares:'444,608,905', market_value_usd:21840716, pct_portfolio:99.6, notes:'成本HKD 0.795→市价HKD 0.385 浮亏-51.99%'},
+      {as_of_date:'2026-05-29', account:'A01', name:'通知存款 HKD Call Deposit', shares:'', market_value_usd:51412, pct_portfolio:0.23, notes:'利率1.00%'},
+      {as_of_date:'2026-05-29', account:'A01', name:'现金账户 USD/SGD', shares:'', market_value_usd:26666, pct_portfolio:0.12, notes:''},
+      {as_of_date:'2026-05-29', account:'A02', name:'BNP AI证书 (结构性)', shares:'378', market_value_usd:68014, pct_portfolio:5.97, notes:'ISIN XS2719859246'},
+      {as_of_date:'2026-05-29', account:'A02', name:'Taiwan Semi ADR (TSM)', shares:'57', market_value_usd:23852, pct_portfolio:2.10, notes:''},
+      {as_of_date:'2026-05-29', account:'A02', name:'SAP SE', shares:'120', market_value_usd:21742, pct_portfolio:1.91, notes:''},
+      {as_of_date:'2026-05-29', account:'A02', name:'Deutsche Telekom', shares:'480', market_value_usd:16166, pct_portfolio:1.42, notes:''},
+      {as_of_date:'2026-05-29', account:'A02', name:'Allianz SE', shares:'35', market_value_usd:15586, pct_portfolio:1.37, notes:''},
+      {as_of_date:'2026-05-29', account:'A02', name:'NetEase ADR', shares:'100', market_value_usd:12282, pct_portfolio:1.08, notes:''},
+      {as_of_date:'2026-05-29', account:'A02', name:'Enel SpA', shares:'1000', market_value_usd:11232, pct_portfolio:0.99, notes:''},
+      {as_of_date:'2026-05-29', account:'A02', name:'Nestlé', shares:'110', market_value_usd:11184, pct_portfolio:0.98, notes:''},
+      {as_of_date:'2026-05-29', account:'A02', name:'Oracle', shares:'41', market_value_usd:7608, pct_portfolio:0.67, notes:''},
+      {as_of_date:'2026-05-29', account:'A02', name:'UBS货币基金', shares:'8.919', market_value_usd:19917, pct_portfolio:1.75, notes:''},
+      {as_of_date:'2026-05-29', account:'A02', name:'其他股票', shares:'', market_value_usd:929233, pct_portfolio:81.62, notes:''},
+      {as_of_date:'2026-05-29', account:'A02', name:'现金账户', shares:'', market_value_usd:1574, pct_portfolio:0.14, notes:''},
+    ];
+
+    let MONTHLY = [], HOLDINGS = [], META = {};
+
+    // ── helpers ──
+    const fmt = n => (n==null||isNaN(n)) ? '—' : Number(n).toLocaleString('en-US',{maximumFractionDigits:0});
+    const pct = v => (v==null||isNaN(v)) ? 'N/A' : (v>0?'+':'') + Number(v).toFixed(2) + '%';
+    const signColor = v => v==null?'var(--ink-soft)':(v>=0?'var(--pos)':'var(--neg)');
+    const minusGlyph = s => String(s).replace(/-/g,'−');
+    const monthsSorted = () => [...new Set(MONTHLY.map(r=>r.month))].sort();
+    const latestOf = acct => { const rows = MONTHLY.filter(r=>r.account===acct).sort((a,b)=>a.month.localeCompare(b.month)); return rows[rows.length-1]; };
+    const cnMonth = m => { const n = parseInt(m.split('-')[1],10); const en=['January','February','March','April','May','June','July','August','September','October','November','December']; return n+'月 '+en[n-1]; };
+
+    // ── KPI strip ──
+    function renderKPI(){
+      const a01 = latestOf('A01'), a02 = latestOf('A02');
+      const total = (a01?a01.net_assets:0) + (a02?a02.net_assets:0);
+      // compound A01 TWR YTD
+      const a01rows = MONTHLY.filter(r=>r.account==='A01').sort((a,b)=>a.month.localeCompare(b.month));
+      let ytd = a01rows.reduce((acc,r)=>acc*(1+(r.twr_pct||0)/100),1);
+      const ytdPct = (ytd-1)*100;
+      // A02 since inception compound
+      const a02rows = MONTHLY.filter(r=>r.account==='A02').sort((a,b)=>a.month.localeCompare(b.month));
+      let a02c = a02rows.reduce((acc,r)=>acc*(1+(r.twr_pct||0)/100),1);
+      const a02Pct = (a02c-1)*100;
+      const cell = (label,val,color,sub)=>`<div style="padding:14px 18px;border-right:1px solid var(--hairline);">
+        <div style="font-size:var(--fs-caption);letter-spacing:.1em;text-transform:uppercase;color:var(--slate);margin-bottom:4px;">${label}</div>
+        <div style="font-family:var(--font-display);font-size:17px;font-weight:600;font-variant-numeric:tabular-nums;${color?'color:'+color:''}">USD ${val}</div>
+        ${sub||''}</div>`;
+      document.getElementById('le_kpiStrip').innerHTML =
+        cell('UBS 总净资产', fmt(total), 'var(--pos)') +
+        cell('账户01 达芙妮', fmt(a01?a01.net_assets:0), null) +
+        cell('账户02 UBS代管', fmt(a02?a02.net_assets:0), 'var(--pos)', `<div style="font-size:var(--fs-small);color:${signColor(a02Pct)};font-family:var(--font-cjk);margin-top:2px;">${minusGlyph(pct(a02Pct))} 自开仓</div>`) +
+        `<div style="padding:14px 18px;"><div style="font-size:var(--fs-caption);letter-spacing:.1em;text-transform:uppercase;color:var(--slate);margin-bottom:4px;">年初至今 TWR (01)</div><div style="font-family:var(--font-display);font-size:17px;font-weight:600;font-variant-numeric:tabular-nums;color:${signColor(ytdPct)};">${minusGlyph(pct(ytdPct))}</div></div>`;
+    }
+
+    // ── Holdings cards ──
+    function latestHoldingDate(acct){
+      const ds = HOLDINGS.filter(h=>h.account===acct).map(h=>h.as_of_date).sort();
+      return ds[ds.length-1];
+    }
+    function holdingRows(acct, cols){
+      const d = latestHoldingDate(acct);
+      const rows = HOLDINGS.filter(h=>h.account===acct && h.as_of_date===d);
+      let total = 0;
+      let html = rows.map(h=>{ total += Number(h.market_value_usd)||0;
+        if(cols===5) return `<tr><td>${h.name}</td><td>${h.shares||'—'}</td><td>${fmt(h.market_value_usd)}</td><td>${h.pct_portfolio!=null?Number(h.pct_portfolio).toFixed(h.pct_portfolio<1?2:1)+'%':'—'}</td><td class="txt">${h.notes||'—'}</td></tr>`;
+        return `<tr><td>${h.name}</td><td>${fmt(h.market_value_usd)}</td><td>${h.pct_portfolio!=null?Number(h.pct_portfolio).toFixed(h.pct_portfolio<1?2:1)+'%':'—'}</td></tr>`;
+      }).join('');
+      if(cols===5) html += `<tr class="total"><td class="txt">合计</td><td>—</td><td>${fmt(total)}</td><td>100%</td><td class="txt">—</td></tr>`;
+      else html += `<tr class="total"><td class="txt">合计</td><td>${fmt(total)}</td><td>100%</td></tr>`;
+      return html;
+    }
+    function renderCards(){
+      const a01 = latestOf('A01');
+      const a01rows = MONTHLY.filter(r=>r.account==='A01').sort((a,b)=>a.month.localeCompare(b.month));
+      const ytd = (a01rows.reduce((acc,r)=>acc*(1+(r.twr_pct||0)/100),1)-1)*100;
+      document.getElementById('le_acct01Card').innerHTML = `
+        <div style="font-family:var(--font-cjk);font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px;">账户 01 · 自管</div>
+        <div style="font-size:var(--fs-caption);color:var(--slate);font-variant-numeric:tabular-nums;margin-bottom:12px;">546-885658-01</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline);margin-bottom:14px;">
+          <div style="padding:10px 0;border-right:1px solid var(--hairline);"><div style="font-size:var(--fs-caption);color:var(--slate);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;">净资产</div><div style="font-family:var(--font-display);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;">USD ${fmt(a01?a01.net_assets:0)}</div></div>
+          <div style="padding:10px 14px;"><div style="font-size:var(--fs-caption);color:var(--slate);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;">YTD TWR</div><div style="font-family:var(--font-display);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;color:${signColor(ytd)};">${minusGlyph(pct(ytd))}</div></div>
+        </div>
+        <div style="overflow-x:auto;"><table class="ftable"><thead><tr><th style="text-align:left">持仓</th><th>数量</th><th>市值 USD</th><th>占比</th><th style="text-align:left">备注</th></tr></thead><tbody>${holdingRows('A01',5)}</tbody></table></div>`;
+
+      const a02 = latestOf('A02');
+      const a02rows = MONTHLY.filter(r=>r.account==='A02').sort((a,b)=>a.month.localeCompare(b.month));
+      const a02ytd = (a02rows.reduce((acc,r)=>acc*(1+(r.twr_pct||0)/100),1)-1)*100;
+      const a02month = a02 ? a02.twr_pct : null;
+      document.getElementById('le_acct02Card').innerHTML = `
+        <div style="font-family:var(--font-cjk);font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px;">账户 02 · UBS代管</div>
+        <div style="font-size:var(--fs-caption);color:var(--slate);font-variant-numeric:tabular-nums;margin-bottom:12px;">546-885658-02</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline);margin-bottom:14px;">
+          <div style="padding:10px 0;border-right:1px solid var(--hairline);"><div style="font-size:var(--fs-caption);color:var(--slate);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;">净资产</div><div style="font-family:var(--font-display);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;">USD ${fmt(a02?a02.net_assets:0)}</div></div>
+          <div style="padding:10px 12px;border-right:1px solid var(--hairline);"><div style="font-size:var(--fs-caption);color:var(--slate);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;">自开仓</div><div style="font-family:var(--font-display);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;color:${signColor(a02ytd)};">${minusGlyph(pct(a02ytd))}</div></div>
+          <div style="padding:10px 12px;"><div style="font-size:var(--fs-caption);color:var(--slate);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;">最新单月</div><div style="font-family:var(--font-display);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;color:${signColor(a02month)};">${minusGlyph(pct(a02month))}</div></div>
+        </div>
+        <div style="overflow-x:auto;"><table class="ftable"><thead><tr><th style="text-align:left">持仓</th><th>市值 USD</th><th>占比</th></tr></thead><tbody>${holdingRows('A02',3)}</tbody></table></div>`;
+    }
+
+    // ── Chart ──
+    function renderChart(){
+      const el = document.getElementById('ov_leMonthlyTWR');
+      if(!el || typeof Chart === 'undefined') return;
+      (Chart.getChart('ov_leMonthlyTWR'))?.destroy();
+      const labels = monthsSorted();
+      const map = acct => labels.map(m=>{ const r = MONTHLY.find(x=>x.month===m && x.account===acct); return r ? r.twr_pct : null; });
+      new Chart(el.getContext('2d'), {
+        type:'bar',
+        data:{ labels: labels.map(m=>parseInt(m.split('-')[1],10)+'月'),
+          datasets:[
+            {label:'账户01 自管', data:map('A01'), backgroundColor:'#1A2740'},
+            {label:'账户02 UBS代管', data:map('A02'), backgroundColor:'#7C2E2E'}
+          ]},
+        options:{ responsive:true, maintainAspectRatio:false,
+          plugins:{ legend:{position:'bottom',labels:{font:{size:11}}},
+            tooltip:{callbacks:{label:c=>c.dataset.label+': '+(c.parsed.y==null?'N/A':c.parsed.y+'%')}}},
+          scales:{ y:{ticks:{callback:v=>v+'%',font:{size:10}},grid:{color:'rgba(0,0,0,0.06)'}}, x:{grid:{display:false},ticks:{font:{size:11}}} }
+        }
+      });
+    }
+
+    // ── Accordion ──
+    function renderAccordion(){
+      const months = monthsSorted().slice().reverse();
+      const html = months.map((m,i)=>{
+        const a01 = MONTHLY.find(r=>r.month===m && r.account==='A01');
+        const a02 = MONTHLY.find(r=>r.month===m && r.account==='A02');
+        const total = (a01?a01.net_assets:0) + (a02?a02.net_assets:0);
+        const note = (a01&&a01.note) || (a02&&a02.note) || '';
+        const a01block = a01 ? `净资产 USD ${fmt(a01.net_assets)}<br>TWR <span style="color:${signColor(a01.twr_pct)};">${minusGlyph(pct(a01.twr_pct))}</span> &nbsp;|&nbsp; 损益 <span style="color:${signColor(a01.pl_amount)};">${minusGlyph((a01.pl_amount>=0?'+':'')+fmt(a01.pl_amount))}</span>${a01.flow?`<br><span style="color:var(--slate);">资金流 ${minusGlyph((a01.flow>=0?'+':'')+fmt(a01.flow))}</span>`:''}` : 'N/A（未开仓）';
+        const a02block = a02 ? `净资产 USD ${fmt(a02.net_assets)}<br>TWR <span style="color:${signColor(a02.twr_pct)};">${minusGlyph(pct(a02.twr_pct))}</span> &nbsp;|&nbsp; 损益 <span style="color:${signColor(a02.pl_amount)};">${minusGlyph((a02.pl_amount>=0?'+':'')+fmt(a02.pl_amount))}</span>` : 'N/A（未开仓）';
+        return `<details ${i===0?'open':''} style="border:1px solid var(--hairline);border-radius:2px;margin-bottom:8px;">
+          <summary style="cursor:pointer;padding:12px 16px;font-family:var(--font-cjk);font-size:13px;display:flex;justify-content:space-between;align-items:center;">
+            <span><strong>${cnMonth(m)}</strong> &nbsp;<span style="color:var(--slate);">合计净资产 USD ${fmt(total)}</span></span>
+            <span style="color:var(--ink-soft);font-size:var(--fs-small);">${note}</span></summary>
+          <div style="padding:0 16px 14px;display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+            <div style="border-top:1px solid var(--hairline);padding-top:10px;"><div style="font-size:var(--fs-caption);color:var(--slate);margin-bottom:4px;">账户 01</div><div style="font-size:var(--fs-small);font-variant-numeric:tabular-nums;line-height:1.7;">${a01block}</div></div>
+            <div style="border-top:1px solid var(--hairline);padding-top:10px;"><div style="font-size:var(--fs-caption);color:var(--slate);margin-bottom:4px;">账户 02</div><div style="font-size:var(--fs-small);font-variant-numeric:tabular-nums;line-height:1.7;${a02?'':'color:var(--ink-soft);'}">${a02block}</div></div>
+          </div></details>`;
+      }).join('');
+      document.getElementById('le_accordion').innerHTML = html;
+    }
+
+    function renderAll(){ renderKPI(); renderCards(); renderChart(); renderAccordion();
+      const lu = META.last_updated || latestHoldingDate('A01') || latestHoldingDate('A02');
+      if(lu) document.getElementById('le_asOf').textContent = '数据截至 ' + lu;
+    }
+
+    // ── data load ──
+    function applySeed(){ MONTHLY = SEED_MONTHLY.map(r=>({...r})); HOLDINGS = SEED_HOLDINGS.map(r=>({...r})); META = {a01_baseline:'24527652',a02_start_date:'2026-02-05',a02_initial:'1000000',last_updated:'2026-05-29'}; }
+
+    async function loadData(){
+      const st = document.getElementById('le_status'); st.textContent = '加载中…';
+      try{
+        const res = await fetch(GAS_URL, {redirect:'follow'});
+        const json = await res.json();
+        const mp = json.monthly_performance||[], hd = json.holdings||[], mt = json.meta||[];
+        if(mp.length){ MONTHLY = mp; HOLDINGS = hd.length?hd:SEED_HOLDINGS.map(r=>({...r})); }
+        else { applySeed(); }
+        META = {}; (Array.isArray(mt)?mt:[]).forEach(o=>{ if(o&&o.key!=null) META[o.key]=o.value; });
+        if(!META.last_updated) META.last_updated = mp.length ? null : '2026-05-29';
+        st.textContent = mp.length ? '✓ 云端数据' : '⚠ 使用本地种子数据';
+      }catch(e){ applySeed(); st.textContent = '⚠ 离线 · 本地种子数据'; }
+      renderAll();
+    }
+
+    // ── PDF parsing ──
+    const files = { A01:null, A02:null };
+    async function extractText(file){
+      const buf = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({data:buf}).promise;
+      let txt = '';
+      for(let i=1;i<=pdf.numPages;i++){ const page = await pdf.getPage(i); const tc = await page.getTextContent(); txt += tc.items.map(it=>it.str).join(' ') + ' '; }
+      return txt;
+    }
+    const cleanNum = s => parseFloat(String(s).replace(/[\s,]/g,''));
+    function parseA01(txt){
+      const out = {account:'A01', month:null, net_assets:null, twr_pct:null, pl_amount:null, flow:0};
+
+      // 1. Month — from statement date header "資產報表截至：2026年05月31日"
+      const dateM = txt.match(/資產報表截至[：:]\s*(\d{4})年(\d{2})月/) || txt.match(/资产报表截至[：:]\s*(\d{4})年(\d{2})月/);
+      if(dateM){ out.month = dateM[1]+'-'+dateM[2]; }
+
+      // 2. Net assets — Account 01 only (NOT the combined "瑞銀淨資產總額" total).
+      //    Find the "投資組合 01" section, then its "淨資產 100.00 XX XXX XXX".
+      const a01Idx = txt.indexOf('投資組合 01') !== -1 ? txt.indexOf('投資組合 01') : txt.indexOf('投资组合 01');
+      if(a01Idx !== -1){
+        const a01Section = txt.slice(a01Idx, a01Idx + 2000);
+        const naM = a01Section.match(/淨資產\s+100\.00\s+([\d\s]{5,15})/) || a01Section.match(/净资产\s+100\.00\s+([\d\s]{5,15})/);
+        if(naM) out.net_assets = cleanNum(naM[1]);
+      }
+      // Fallback: "期末價值 [prev_year] [current_year]" — take current year (2nd number).
+      if(out.net_assets==null){
+        const evM = txt.match(/期末價值\s+([\d\s]{5,15})\s+([\d\s]{5,15})/) || txt.match(/期末价值\s+([\d\s]{5,15})\s+([\d\s]{5,15})/);
+        if(evM) out.net_assets = cleanNum(evM[2]);
+      }
+
+      // 3. Current month TWR — "現時 月份 -7.19%" / "本時 月份 -7.19%"
+      const twrM = txt.match(/現時\s*月份\s*([-\d.]+)%/) || txt.match(/本時\s*月份\s*([-\d.]+)%/) ||
+                   txt.match(/现时\s*月份\s*([-\d.]+)%/) || txt.match(/本时\s*月份\s*([-\d.]+)%/);
+      if(twrM) out.twr_pct = parseFloat(twrM[1]);
+
+      // 4. Monthly P&L — most recent row of the monthly performance table:
+      //    "2026年05月29日  21 918 794  0  -252 500  -1 709 716  -7.19%"
+      //    Columns: [period-end value] [flow] [flow] [P&L]  then TWR%.
+      //    Spaces double as thousands-separators AND column-separators, so we
+      //    capture the whole numeric segment before the trailing TWR%, then
+      //    tokenise into UBS-style numbers (optional minus, 1-3 digits, then
+      //    groups of exactly 3 digits). P&L = last token, flow = 3rd token.
+      const NUM_RE = /-?\d{1,3}(?: \d{3})*/g;
+      const monthRowRegex = /(\d{4})年(\d{2})月(\d{2})日\s+(.+?)\s+(-?\d+\.\d+)%/g;
+      let lastMatch=null, mr;
+      while((mr = monthRowRegex.exec(txt)) !== null) lastMatch = mr;
+      if(lastMatch){
+        const nums = lastMatch[4].match(NUM_RE) || [];
+        if(nums.length){
+          out.pl_amount = cleanNum(nums[nums.length-1]);
+          if(nums.length>=2) out.flow = cleanNum(nums[nums.length-2]) || 0;
+        }
+        if(out.month==null) out.month = lastMatch[1]+'-'+lastMatch[2];
+        if(out.twr_pct==null) out.twr_pct = parseFloat(lastMatch[5]);
+      }
+      return out;
+    }
+    function parseA02(txt){
+      const out = {account:'A02', month:null, net_assets:null, twr_pct:null, pl_amount:null, flow:0};
+
+      // 1. Month from statement date
+      const mon = {January:'01',February:'02',March:'03',April:'04',May:'05',June:'06',July:'07',August:'08',September:'09',October:'10',November:'11',December:'12'};
+      const d = txt.match(/Statement of assets as of\s+(\d{1,2})\s+(\w+)\s+(\d{4})/);
+      if(d){ out.month = d[3]+'-'+(mon[d[2]]||'01'); }
+
+      // 2. Net assets — Portfolio 02 section only (not the combined banking-relationship total).
+      const p02Idx = txt.indexOf('Portfolio 02');
+      if(p02Idx !== -1){
+        const p02Section = txt.slice(p02Idx, p02Idx + 1000);
+        const evM = p02Section.match(/End value\s+([\d\s,]+)/);
+        if(evM) out.net_assets = cleanNum(evM[1]);
+        if(out.net_assets==null){
+          const naM = p02Section.match(/Net assets\s+100\.00\s+([\d\s,]+)/);
+          if(naM) out.net_assets = cleanNum(naM[1]);
+        }
+      }
+
+      // 3. Current month TWR
+      const twrM = txt.match(/Current month[^%]*?([-\d.]+)\s*%/);
+      if(twrM) out.twr_pct = parseFloat(twrM[1]);
+
+      // 4. Monthly P&L
+      const plM = txt.match(/Current month.*?(\d{2}\.\d{2}\.\d{4})\s+([\d\s,]+)\s+([-\d.]+)%\s+([-\d\s,]+)/);
+      if(plM) out.pl_amount = cleanNum(plM[4]);
+
+      return out;
+    }
+
+// ── A01 holdings parser (Chinese PDF) ─────────────
+function parseA01Holdings(txt, asOfDate) {
+  const rows = [];
+
+  // Daphne: look for the equity investment section
+  // Pattern: large number (share count) near 達苙妮 or Daphne, followed by market value
+  const daphneM = txt.match(/(\d[\d\s]{5,15})\s*(?:Reg\.shs\s+)?[Dd]aphne[^]+?(\d[\d\s]{4,10})\s+99\.6/);
+  if (daphneM) {
+    rows.push({
+      name: '達苙妮 Daphne (0210.HK)',
+      shares: daphneM[1].replace(/\s/g,''),
+      market_value_usd: parseInt(daphneM[2].replace(/\s/g,'')),
+      pct_portfolio: 99.6,
+      notes: ''
+    });
+  } else {
+    // fallback: look for 444 near 99.64 or 99.6
+    const m2 = txt.match(/444[\s,]608[\s,]905[^]+?(\d{2}[\s]\d{3}[\s]\d{3})\s+99\./);
+    if (m2) rows.push({name:'達苙妮 Daphne (0210.HK)', shares:'444608905', market_value_usd:parseInt(m2[1].replace(/\s/g,'')), pct_portfolio:99.6, notes:''});
+  }
+
+  // HKD Call Deposit (通知存款)
+  const callM = txt.match(/UBS Call Deposit[^]+?(\d{2}[\s]\d{3})\s+0\.2[0-9]/);
+  if (callM) rows.push({name:'通知存款 HKD Call Deposit', shares:'', market_value_usd:parseInt(callM[1].replace(/\s/g,'')), pct_portfolio:0.23, notes:'利率1.00%'});
+
+  // USD cash account
+  const usdM = txt.match(/USD\s+([\d,]+\.?\d*)\s+UBS Current Account[^]+?(\d{2}[\s]\d{3})\s+0\.1/);
+  if (usdM) rows.push({name:'现金账户 USD', shares:'', market_value_usd:parseInt(usdM[2].replace(/\s/g,'')), pct_portfolio:0.12, notes:''});
+
+  // If we got nothing, use defaults so the sheet isn't blank
+  if (rows.length === 0) {
+    rows.push({name:'達苙妮 Daphne (0210.HK)', shares:'444608905', market_value_usd:21840716, pct_portfolio:99.6, notes:'解析失败，使用上月数据'});
+    rows.push({name:'通知存款 + 现金', shares:'', market_value_usd:78078, pct_portfolio:0.4, notes:''});
+  }
+
+  return rows.map(r => ({...r, as_of_date: asOfDate, account: 'A01'}));
+}
+
+// ── A02 holdings parser (English PDF) ────────────────────────────────
+    function parseA02Holdings(txt, asOfDate) {
+      const rows = [];
+
+      // 1. Equity investments
+      const eqStart = txt.indexOf('Equities - Equity investments');
+      const eqEnd   = txt.indexOf('Total Equity investments', eqStart > -1 ? eqStart : 0);
+      if (eqStart > -1 && eqEnd > -1) {
+        const eqTxt = txt.slice(eqStart, eqEnd);
+        const isinRe = /ISIN\s+([A-Z]{2}[A-Z0-9]{10})\s*-\s*Symbol\s*(\S+)/g;
+        const isins = []; let m;
+        while ((m = isinRe.exec(eqTxt)) !== null) {
+          isins.push({ pos: m.index, end: m.index + m[0].length, isin: m[1], symbol: m[2] });
+        }
+        for (let i = 0; i < isins.length; i++) {
+          const cur = isins[i];
+          const chunkStart = i === 0 ? 0 : isins[i-1].end;
+          const chunk = eqTxt.slice(chunkStart, cur.end);
+          // Market value + pct: "NNN NNN   X.XX Reg.shs|Shs|Sponsored"
+          const mvRe = /(\d[\d ]{2,9})\s{2,}(\d+\.\d+)\s+(?:Reg\.?shs|Shs|Sponsored)/;
+          const mvM  = chunk.match(mvRe);
+          if (!mvM) continue;
+          const market_value = parseInt(mvM[1].replace(/\s/g, ''));
+          const pct          = parseFloat(mvM[2]);
+          if (market_value < 100 || pct <= 0) continue;
+          // Company name: text after type prefix, up to Distribution: or ISIN
+          const nameRe = /(?:Reg\.?shs|Shs|Sponsored(?:\s+American\s+Deposit\s+Receipt)?(?:\s+Shs)?)\s+(.+?)\s*(?:Distribution:|ISIN)/;
+          const nameM  = chunk.match(nameRe);
+          let name = nameM ? nameM[1].trim().replace(/\s{2,}/g, ' ') : cur.symbol;
+          if (!name.includes('(')) name += ' (' + cur.symbol + ')';
+          // Shares: integer before sector keyword
+          const sharesM = chunk.match(/(\d[\d\s]*)\s+(?:Consumer|Information|Financials|Health|Industrials|Communication|Energy|Utilities|Materials|All\s+sectors)/);
+          const shares  = sharesM ? sharesM[1].replace(/\s/g, '') : '';
+          rows.push({ as_of_date:asOfDate, account:'A02', name:name.slice(0,70), shares,
+                      market_value_usd:market_value, pct_portfolio:pct, notes:cur.isin });
+        }
+      }
+
+      // 2. Structured products (BNP AI Certificate)
+      const spStart = txt.indexOf('Equities - Structured products');
+      const spEnd   = txt.indexOf('Total Structured products', spStart > -1 ? spStart : 0);
+      if (spStart > -1 && spEnd > -1) {
+        const spTxt = txt.slice(spStart, spEnd);
+        const spMvM = spTxt.match(/(\d[\d ]{3,8})\s{2,}(\d+\.\d+)\s+Actively/);
+        const spShM = spTxt.match(/(\d[\d.]*)\s+All\s+sectors/);
+        const spIsn = spTxt.match(/ISIN\s+([A-Z]{2}[A-Z0-9]{10})/);
+        if (spMvM) rows.push({ as_of_date:asOfDate, account:'A02',
+          name:'BNP AI Certificate (XS2719859246)', shares:spShM?spShM[1]:'378',
+          market_value_usd:parseInt(spMvM[1].replace(/\s/g,'')),
+          pct_portfolio:parseFloat(spMvM[2]), notes:spIsn?spIsn[1]:'XS2719859246' });
+      }
+
+      // 3. Money market (UBS MMF)
+      const mmStart = txt.indexOf('Liquidity - Money market');
+      const mmEnd   = txt.indexOf('Total Money market', mmStart > -1 ? mmStart : 0);
+      if (mmStart > -1 && mmEnd > -1) {
+        const mmTxt = txt.slice(mmStart, mmEnd);
+        const mmMvM = mmTxt.match(/(\d[\d ]{3,8})\s{2,}(\d+\.\d+)\s+UBS\s+\(Lux\)/);
+        const mmShM = mmTxt.match(/^([\d.]+)\s+0\.\d/m);
+        const mmIsn = mmTxt.match(/ISIN\s+([A-Z]{2}[A-Z0-9]{10})/);
+        if (mmMvM) rows.push({ as_of_date:asOfDate, account:'A02',
+          name:'UBS Money Market Fund', shares:mmShM?mmShM[1]:'',
+          market_value_usd:parseInt(mmMvM[1].replace(/\s/g,'')),
+          pct_portfolio:parseFloat(mmMvM[2]), notes:mmIsn?mmIsn[1]:'LU0454364208' });
+      }
+
+      // 4. Cash accounts
+      const acctM = txt.match(/Total Accounts\s+([\d\s]+)\s+([\d.]+)/);
+      if (acctM) rows.push({ as_of_date:asOfDate, account:'A02',
+        name:'现金账户 (多币种)', shares:'',
+        market_value_usd:parseInt(acctM[1].replace(/\s/g,'')),
+        pct_portfolio:parseFloat(acctM[2]), notes:'' });
+
+      if (rows.length === 0)
+        return SEED_HOLDINGS.filter(h=>h.account==='A02').map(h=>({...h, as_of_date:asOfDate}));
+      return rows;
+    }
+
+    let parsed = {A01:null, A02:null};
+    async function doParse(){
+      const msg = document.getElementById('le_parseMsg'); msg.textContent = '解析中…';
+      try{
+        let txtA01 = '', txtA02 = '';
+        if(files.A01){ txtA01 = await extractText(files.A01); parsed.A01 = parseA01(txtA01); }
+        if(files.A02){ txtA02 = await extractText(files.A02); parsed.A02 = parseA02(txtA02); }
+
+        // Save raw text for debug dump
+        if(txtA01) document.getElementById('le_dumpA01').value = txtA01;
+        if(txtA02) document.getElementById('le_dumpA02').value = txtA02;
+
+        // Parse holdings
+        const reportDate = (parsed.A01&&parsed.A01.month) || (parsed.A02&&parsed.A02.month) || '';
+        const asOfDate = reportDate ? reportDate + '-29' : new Date().toISOString().slice(0,10);
+        if(txtA01) parsed.holdingsA01 = parseA01Holdings(txtA01, asOfDate);
+        if(txtA02) parsed.holdingsA02 = parseA02Holdings(txtA02, asOfDate);
+
+        renderConfirm(); msg.textContent = '✓ 解析完成，请核对';
+      }catch(e){ msg.textContent = '✗ 解析失败：'+e.message; }
+    }
+    function renderConfirm(){
+      const guessMonth = (parsed.A01&&parsed.A01.month) || (parsed.A02&&parsed.A02.month) || '';
+      const rows = [];
+      ['A01','A02'].forEach(acct=>{
+        const p = parsed[acct]; if(!p) return;
+        rows.push(`<tr data-acct="${acct}">
+          <td style="text-align:left">${acct}</td>
+          <td><input class="le-in" data-f="month" value="${p.month||guessMonth}" style="width:90px;"></td>
+          <td><input class="le-in" data-f="net_assets" value="${p.net_assets!=null?p.net_assets:''}" style="width:110px;"></td>
+          <td><input class="le-in" data-f="twr_pct" value="${p.twr_pct!=null?p.twr_pct:''}" style="width:70px;"></td>
+          <td><input class="le-in" data-f="pl_amount" value="${p.pl_amount!=null?p.pl_amount:''}" style="width:100px;"></td>
+          <td><input class="le-in" data-f="flow" value="${p.flow!=null?p.flow:0}" style="width:90px;"></td>
+        </tr>`);
+      });
+      document.getElementById('le_confirmRows').innerHTML = rows.join('');
+      document.querySelectorAll('.le-in').forEach(el=>{ el.style.fontFamily='var(--font-display)'; el.style.fontSize='12px'; el.style.padding='3px 5px'; el.style.border='1px solid var(--hairline)'; el.style.borderRadius='2px'; });
+      // Holdings preview
+      let holdPreview = '';
+      const allHoldings = [...(parsed.holdingsA01||[]), ...(parsed.holdingsA02||[])];
+      if(allHoldings.length > 0){
+        const hRows = allHoldings.map(h=>`<tr><td>${h.account}</td><td class="txt">${h.name}</td><td>${h.shares||'—'}</td><td style="text-align:right">${h.market_value_usd?.toLocaleString()||'—'}</td><td style="text-align:right">${h.pct_portfolio!=null?Number(h.pct_portfolio).toFixed(2)+'%':'—'}</td></tr>`).join('');
+        // Editable holdings table
+        const inS = 'font-family:var(--font-display);font-size:11px;padding:2px 5px;border:1px solid var(--hairline);border-radius:2px;';
+        const hEditRows = allHoldings.map((h,i)=>`<tr data-hi="${i}">
+          <td style="color:var(--slate);font-size:11px;">${h.account}</td>
+          <td><input class="le-hi" data-f="name"              value="${(h.name||'').replace(/"/g,'&quot;')}" style="${inS}width:180px;"></td>
+          <td><input class="le-hi" data-f="shares"            value="${h.shares||''}"          style="${inS}width:70px;text-align:right;"></td>
+          <td><input class="le-hi" data-f="market_value_usd"  value="${h.market_value_usd||''}" style="${inS}width:90px;text-align:right;"></td>
+          <td><input class="le-hi" data-f="pct_portfolio"     value="${h.pct_portfolio||''}"   style="${inS}width:55px;text-align:right;"></td>
+          <td><button onclick="this.closest('tr').remove()" style="font-size:11px;border:none;background:none;color:var(--neg);cursor:pointer;padding:2px 6px;">✕</button></td>
+        </tr>`).join('');
+        holdPreview = `<details open style="margin-top:16px;">
+          <summary style="font-size:var(--fs-small);color:var(--slate);cursor:pointer;letter-spacing:.08em;">
+            ▸ 持仓明细（可编辑，${allHoldings.length} 条，确认后一并写入）
+          </summary>
+          <div style="overflow-x:auto;margin-top:8px;">
+            <table class="ftable" id="le_holdTable">
+              <thead><tr><th>账户</th><th style="text-align:left">持仓名称</th><th>数量</th><th>市值 USD</th><th>占比 %</th><th></th></tr></thead>
+              <tbody>${hEditRows}</tbody>
+            </table>
+            <button onclick="addHoldingRow()" style="margin-top:6px;font-size:11px;font-family:var(--font-cjk);border:1px dashed var(--slate);background:transparent;color:var(--slate);padding:4px 12px;border-radius:2px;cursor:pointer;">＋ 手动添加一行</button>
+          </div>
+        </details>`;
+      }
+      document.getElementById('le_holdPreview').innerHTML = holdPreview;
+      document.getElementById('le_confirm').style.display = 'block';
+    }
+    async function doSave(){
+      const msg = document.getElementById('le_saveMsg'); msg.textContent = '保存中…';
+      const payloads = [];
+      document.querySelectorAll('#le_confirmRows tr').forEach(tr=>{
+        const o = {account: tr.dataset.acct};
+        tr.querySelectorAll('.le-in').forEach(inp=>{ const f = inp.dataset.f; const v = inp.value.trim();
+          o[f] = (f==='month') ? v : (v===''?null:parseFloat(v)); });
+        payloads.push(o);
+      });
+      try{
+        // 1. Write monthly performance
+        for(const p of payloads){
+          await fetch(GAS_URL, {method:'POST', body: JSON.stringify({action:'upsert_month', ...p})});
+        }
+
+        // 2 & 3. Write holdings — read from editable table (user may have edited)
+        const holdTable = document.getElementById('le_holdTable');
+        if (holdTable) {
+          const editedA01 = [], editedA02 = [];
+          const reportMonth = payloads[0]&&payloads[0].month ? payloads[0].month : '';
+          const asOfDate = reportMonth ? reportMonth + '-29' : new Date().toISOString().slice(0,10);
+          holdTable.querySelectorAll('tbody tr').forEach(tr => {
+            const acct = tr.dataset.hi !== undefined
+              ? (()=>{ const allH=[...(parsed.holdingsA01||[]),...(parsed.holdingsA02||[])]; return allH[+tr.dataset.hi]?.account||'A02'; })()
+              : tr.querySelector('[data-acct]')?.dataset.acct || 'A02';
+            const row = { as_of_date: asOfDate, account: acct };
+            tr.querySelectorAll('.le-hi').forEach(inp => {
+              const f = inp.dataset.f, v = inp.value.trim();
+              row[f] = (f==='name'||f==='shares'||f==='notes') ? v : (v===''?null:parseFloat(v));
+            });
+            if (!row.name) return;
+            if (acct === 'A01') editedA01.push(row);
+            else editedA02.push(row);
+          });
+          if (editedA01.length > 0)
+            await fetch(GAS_URL, {method:'POST', body: JSON.stringify({action:'upsert_holdings', data:{as_of_date:asOfDate, account:'A01', rows:editedA01}})});
+          if (editedA02.length > 0)
+            await fetch(GAS_URL, {method:'POST', body: JSON.stringify({action:'upsert_holdings', data:{as_of_date:asOfDate, account:'A02', rows:editedA02}})});
+        }
+
+        // 4. Update meta
+        const lastDate = payloads[0]&&payloads[0].month ? payloads[0].month : new Date().toISOString().slice(0,7);
+        await fetch(GAS_URL, {method:'POST', body: JSON.stringify({
+          action:'update_meta',
+          data:[
+            {key:'last_updated', value: lastDate},
+            {key:'a01_net_assets', value: String(payloads.find(p=>p.account==='A01')?.net_assets||'')},
+            {key:'a02_net_assets', value: String(payloads.find(p=>p.account==='A02')?.net_assets||'')}
+          ]
+        })});
+
+        msg.textContent = '✓ 已保存，正在刷新…';
+        await loadData();
+        document.getElementById('le_confirm').style.display='none';
+        document.getElementById('le_uploadPanel').open = false;
+        msg.textContent = '✓ 已保存并刷新';
+      }catch(e){ msg.textContent = '✗ 保存失败：'+e.message; }
+    }
+
+    // ── wire UI ──
+    function addHoldingRow(){
+      const tb = document.querySelector('#le_holdTable tbody');
+      if (!tb) return;
+      const inS = 'font-family:var(--font-display);font-size:11px;padding:2px 5px;border:1px solid var(--hairline);border-radius:2px;';
+      const tr = document.createElement('tr');
+      tr.dataset.acct = 'A02';
+      tr.innerHTML = `
+        <td><select class="le-hi" data-f="_acct" onchange="this.closest('tr').dataset.acct=this.value" style="${inS}"><option value="A02">A02</option><option value="A01">A01</option></select></td>
+        <td><input class="le-hi" data-f="name"             placeholder="公司名称" style="${inS}width:180px;"></td>
+        <td><input class="le-hi" data-f="shares"           placeholder="数量"     style="${inS}width:70px;text-align:right;"></td>
+        <td><input class="le-hi" data-f="market_value_usd" placeholder="市值USD"  style="${inS}width:90px;text-align:right;"></td>
+        <td><input class="le-hi" data-f="pct_portfolio"    placeholder="占比%"    style="${inS}width:55px;text-align:right;"></td>
+        <td><button onclick="this.closest('tr').remove()" style="font-size:11px;border:none;background:none;color:var(--neg);cursor:pointer;padding:2px 6px;">✕</button></td>`;
+      tb.appendChild(tr);
+    }
+    function wireDropzone(dzId, inputId, acct){
+      const dz = document.getElementById(dzId), input = document.getElementById(inputId);
+      const setFile = f => { if(!f) return; files[acct]=f; dz.querySelector('.le-fname').textContent = f.name; checkReady(); };
+      dz.addEventListener('click', ()=>input.click());
+      input.addEventListener('change', e=>setFile(e.target.files[0]));
+      dz.addEventListener('dragover', e=>{ e.preventDefault(); dz.style.background='rgba(26,39,64,0.04)'; });
+      dz.addEventListener('dragleave', ()=>{ dz.style.background='var(--paper)'; });
+      dz.addEventListener('drop', e=>{ e.preventDefault(); dz.style.background='var(--paper)'; setFile(e.dataTransfer.files[0]); });
+    }
+    function checkReady(){
+      const btn = document.getElementById('le_parseBtn');
+      const dmp = document.getElementById('le_dumpBtn');
+      const ready = files.A01 || files.A02;
+      btn.disabled = !ready; btn.style.opacity = ready?'1':'.45'; btn.style.cursor = ready?'pointer':'default';
+      dmp.disabled = !ready; dmp.style.opacity = ready?'1':'.45'; dmp.style.cursor = ready?'pointer':'default';
+    }
+
+    document.addEventListener('DOMContentLoaded', function(){
+      wireDropzone('le_dz01','le_file01','A01');
+      wireDropzone('le_dz02','le_file02','A02');
+      document.getElementById('le_parseBtn').addEventListener('click', doParse);
+      document.getElementById('le_saveBtn').addEventListener('click', doSave);
+      document.getElementById('le_dumpBtn').addEventListener('click', async function(){
+        const msg = document.getElementById('le_parseMsg');
+        const panel = document.getElementById('le_dumpPanel');
+        if(panel.style.display==='block'){ panel.style.display='none'; return; }
+        msg.textContent = '提取文本中…';
+        try{
+          if(files.A01 && !document.getElementById('le_dumpA01').value){
+            document.getElementById('le_dumpA01').value = await extractText(files.A01);
+          }
+          if(files.A02 && !document.getElementById('le_dumpA02').value){
+            document.getElementById('le_dumpA02').value = await extractText(files.A02);
+          }
+          panel.style.display='block';
+          msg.textContent = '';
+        }catch(e){ msg.textContent = '✗ '+e.message; }
+      });
+      document.getElementById('le_refreshBtn').addEventListener('click', loadData);
+      if(typeof pdfjsLib!=='undefined'){ pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; }
+      loadData();
+    });
+    // expose for tab re-init if needed
+    window.buildLECharts = renderChart;
+    })();
+    </script>
+
+    <div style="margin-bottom:40px;"></div>
+
+    <!-- ══════════ 实体二：FOR LUCKY ══════════ -->
+    <div class="block-head">
+      <h3 class="sub-title">For Lucky Investment Ltd</h3>
+      <span class="en">境外 + 台灣两部分</span>
+    </div>
+
+    <div style="font-size:var(--fs-eyebrow);letter-spacing:.18em;text-transform:uppercase;color:var(--claret);margin:0 0 10px;">境外部分</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--ink);border-bottom:1px solid var(--hairline);margin-bottom:20px;">
+      <div style="padding:14px 0;border-right:1px solid var(--hairline);">
+        <div style="font-size:var(--fs-caption);letter-spacing:.1em;text-transform:uppercase;color:var(--slate);margin-bottom:4px;">总资产</div>
+        <div style="font-family:var(--font-display);font-size:17px;font-weight:600;font-variant-numeric:tabular-nums;">USD 1,238,828</div>
+      </div>
+      <div style="padding:14px 18px;border-right:1px solid var(--hairline);">
+        <div style="font-size:var(--fs-caption);letter-spacing:.1em;text-transform:uppercase;color:var(--slate);margin-bottom:4px;">总负债</div>
+        <div style="font-family:var(--font-display);font-size:17px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--claret);">USD 886,016</div>
+      </div>
+      <div style="padding:14px 18px;">
+        <div style="font-size:var(--fs-caption);letter-spacing:.1em;text-transform:uppercase;color:var(--slate);margin-bottom:4px;">净资产</div>
+        <div style="font-family:var(--font-display);font-size:17px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--pos);">USD 352,812</div>
+      </div>
+    </div>
+
+    <div style="overflow-x:auto;margin-bottom:12px;">
+    <table class="ftable">
+      <thead>
+        <tr>
+          <th style="text-align:left">资产项目 <span class="zh">Asset</span></th>
+          <th style="text-align:left">类别 <span class="zh">Type</span></th>
+          <th>数量</th>
+          <th>市值 (HKD)</th>
+          <th style="text-align:left">备注</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="subhead"><td colspan="5">港股持仓 — 价格截至 2025/2/26</td></tr>
+        <tr>
+          <td>長和 CK Hutchison (00001)<span class="tag">港股 HK</span></td>
+          <td class="txt">上市股票</td>
+          <td>40,000 股</td>
+          <td>1,586,000</td>
+          <td class="txt"></td>
+        </tr>
+        <tr>
+          <td>阿里巴巴 Alibaba (09988)<span class="tag">港股 HK</span></td>
+          <td class="txt">上市股票</td>
+          <td>4,000 股</td>
+          <td>536,040</td>
+          <td class="txt"></td>
+        </tr>
+        <tr>
+          <td>金山软件 Kingsoft (03888)<span class="tag">港股 HK</span></td>
+          <td class="txt">上市股票</td>
+          <td>30,000 股</td>
+          <td>1,306,500</td>
+          <td class="txt"></td>
+        </tr>
+        <tr class="subhead"><td colspan="5">现金</td></tr>
+        <tr>
+          <td>现金合计</td>
+          <td class="txt">现金</td>
+          <td>—</td>
+          <td>—</td>
+          <td class="txt">USD 90,892</td>
+        </tr>
+        <tr class="total">
+          <td class="txt">港股合计市值</td>
+          <td class="txt">—</td>
+          <td>—</td>
+          <td>3,428,540</td>
+          <td class="txt">— </td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:0;border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline);margin-bottom:32px;">
+      <div style="padding:12px 0;border-right:1px solid var(--hairline);">
+        <div style="font-size:var(--fs-caption);color:var(--slate);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;">2025 境外税后收入</div>
+        <div style="font-family:var(--font-display);font-size:15px;font-weight:600;color:var(--pos);font-variant-numeric:tabular-nums;">USD 6,313</div>
+      </div>
+      <div style="padding:12px 18px;">
+        <div style="font-size:var(--fs-caption);color:var(--slate);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;">收入来源</div>
+        <div style="font-size:var(--fs-small);color:var(--ink-soft);font-family:var(--font-cjk);">港股股利（税后）</div>
+      </div>
+    </div>
+
+    <div style="font-size:var(--fs-eyebrow);letter-spacing:.18em;text-transform:uppercase;color:var(--claret);margin:0 0 10px;">台灣部分</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--ink);border-bottom:1px solid var(--hairline);margin-bottom:20px;">
+      <div style="padding:14px 0;border-right:1px solid var(--hairline);">
+        <div style="font-size:var(--fs-caption);letter-spacing:.1em;text-transform:uppercase;color:var(--slate);margin-bottom:4px;">总资产</div>
+        <div style="font-family:var(--font-display);font-size:17px;font-weight:600;font-variant-numeric:tabular-nums;">USD 9,857,226</div>
+      </div>
+      <div style="padding:14px 18px;border-right:1px solid var(--hairline);">
+        <div style="font-size:var(--fs-caption);letter-spacing:.1em;text-transform:uppercase;color:var(--slate);margin-bottom:4px;">总负债</div>
+        <div style="font-family:var(--font-display);font-size:17px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--claret);">USD 9,722,540</div>
+      </div>
+      <div style="padding:14px 18px;">
+        <div style="font-size:var(--fs-caption);letter-spacing:.1em;text-transform:uppercase;color:var(--slate);margin-bottom:4px;">净资产</div>
+        <div style="font-family:var(--font-display);font-size:17px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--pos);">USD 134,686</div>
+      </div>
+    </div>
+
+    <div style="overflow-x:auto;margin-bottom:12px;">
+    <table class="ftable">
+      <thead>
+        <tr>
+          <th style="text-align:left">资产项目 <span class="zh">Asset</span></th>
+          <th style="text-align:left">类别 <span class="zh">Type</span></th>
+          <th>单位数</th>
+          <th>金额 (USD)</th>
+          <th style="text-align:left">备注</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="subhead"><td colspan="5">基金持仓</td></tr>
+        <tr>
+          <td>JPM 美国科技基金 A 股</td>
+          <td class="txt">共同基金</td>
+          <td>1,101.731 单位</td>
+          <td>77,924</td>
+          <td class="txt">含手续费 924</td>
+        </tr>
+        <tr>
+          <td>JPM 美国科技基金（增持）</td>
+          <td class="txt">共同基金</td>
+          <td>1,783.930 单位</td>
+          <td>126,500</td>
+          <td class="txt">含手续费 1,500</td>
+        </tr>
+        <tr>
+          <td>富坦新固月收益基金</td>
+          <td class="txt">共同基金</td>
+          <td>26,969 单位</td>
+          <td>251,125</td>
+          <td class="txt">含手续费 1,125</td>
+        </tr>
+        <tr>
+          <td>JPM 俄羅斯基金</td>
+          <td class="txt">共同基金</td>
+          <td>8,675 单位</td>
+          <td>126,500</td>
+          <td class="txt">含手续费 1,500</td>
+        </tr>
+        <tr class="subhead"><td colspan="5">现金</td></tr>
+        <tr>
+          <td>现金</td>
+          <td class="txt">现金</td>
+          <td>—</td>
+          <td>99,932</td>
+          <td class="txt"></td>
+        </tr>
+        <tr class="total">
+          <td class="txt">基金 + 现金合计</td>
+          <td class="txt">—</td>
+          <td>—</td>
+          <td>681,981</td>
+          <td class="txt">成本价合计；其余为台灣负债端资产</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline);margin-bottom:40px;">
+      <div style="padding:12px 0;border-right:1px solid var(--hairline);">
+        <div style="font-size:var(--fs-caption);color:var(--slate);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;">2025 台灣税后收入</div>
+        <div style="font-family:var(--font-display);font-size:15px;font-weight:600;color:var(--pos);font-variant-numeric:tabular-nums;">USD 37,689</div>
+      </div>
+      <div style="padding:12px 18px;border-right:1px solid var(--hairline);">
+        <div style="font-size:var(--fs-caption);color:var(--slate);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;">利息收入（税前）</div>
+        <div style="font-family:var(--font-display);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;">USD 25,068</div>
+      </div>
+      <div style="padding:12px 18px;">
+        <div style="font-size:var(--fs-caption);color:var(--slate);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;">基金处分收益（税前）</div>
+        <div style="font-family:var(--font-display);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;">USD 14,231</div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <p>港股市值以 2025/2/26 收盘价计算；基金持仓以成本价入账，市值请另行更新。達芙妮（0210）持仓规模庞大，集中度风险须重点关注。负债明细由财务顾问确认，本报告仅列资产负债表合计数。</p>
+    </div>
+
+  </section>
+
+  <!-- ════════ 4. TAIWAN ════════ -->
+  <section class="panel" id="taiwan">
+    <div class="section-header">
+      <span class="eyebrow">04 — Taiwan</span>
+      <h2 class="section-title">台湾资产</h2>
+      <p class="lead">台湾不动产明细尚待补充，估值待评估。境外金融资产（For Lucky 台灣部分）已并入境外资产页。</p>
+    </div>
+
+    <div class="block-head"><h3 class="sub-title">不动产明细</h3><span class="en">Real Estate Register</span><span class="tag pending">Pending · 待补充</span></div>
+    <div style="overflow-x:auto">
+    <table class="ftable">
+      <thead>
+        <tr>
+          <th>资产 / Asset</th>
+          <th style="text-align:left">持有主体 / Holder</th>
+          <th style="text-align:left">类型 / Type</th>
+          <th>当前估值</th>
+          <th style="text-align:left">备注 / Note</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="pending">待补充 —</td>
+          <td class="pending">待补充 —</td>
+          <td class="pending">待补充 —</td>
+          <td class="pending">待估值 —</td>
+          <td class="txt pending">明细确认后填入</td>
+        </tr>
+        <tr class="total">
+          <td class="txt">合计 / Total</td>
+          <td class="txt">—</td>
+          <td class="txt">—</td>
+          <td class="pending" style="font-weight:400">待估值 —</td>
+          <td class="txt" style="font-weight:400">—</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+
+  </section>
+
+  <!-- Footer -->
+  <div class="conf-footer">
+    <p>本文件仅供家族内部参考，所有税务与法律决策请咨询执业顾问<br>Lucky Earn Investment Ltd · 瑞盈投资有限公司 · The Chang Family Office · 数据截至 2026-06</p>
+    <span class="conf-badge">Confidential · 机密</span>
+  </div>
+
+</div>
+
+<script>
+  const buttons = document.querySelectorAll('.nav button');
+  const panels = document.querySelectorAll('.panel');
+  let chartsBuilt = false;
+
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.tab;
+      buttons.forEach(b => b.classList.toggle('active', b === btn));
+      panels.forEach(p => p.classList.toggle('active', p.id === tab));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (tab === 'overview') buildCharts();
+    });
+  });
+
+  const C = {
+    ink: '#1A2740', inkSoft: '#3A4459', claret: '#7C2E2E',
+    paper: '#F4F1EA', paper3: '#E3E0D5', hair: '#CFC9BB',
+    hairStrong: '#B4AD9D', slate: '#6C7080',
+    d1: '#1A2740', d2: '#7C2E2E', d3: '#9A7B3F',
+    d4: '#3E5A4E', d5: '#5B6B82', d6: '#B4A88C',
+    pos: '#3E5A4E', neg: '#7C2E2E'
+  };
+
+  const cnData = [
+    { label: '上海美丽园 28E', cat: '住宅', v: 3809200 },
+    { label: '上海美丽园 28D', cat: '住宅', v: 3237800 },
+    { label: '上海美丽园 28B', cat: '住宅', v: 4367400 },
+    { label: '河南漯河商铺',   cat: '商铺', v: 3504474 },
+    { label: '成都 3701',      cat: '办公', v: 4252850 },
+    { label: '成都 3702',      cat: '办公', v: 3297104 },
+  ];
+  const fmt = n => '¥' + n.toLocaleString('en-US');
+
+  function buildCharts() {
+    if (chartsBuilt) return;
+    if (typeof Chart === 'undefined') return;
+    chartsBuilt = true;
+
+    Chart.defaults.font.family = "'Schibsted Grotesk','Noto Sans SC',sans-serif";
+    Chart.defaults.color = C.slate;
+
+    const fmtCNY = n => '¥' + n.toLocaleString('en-US');
+
+    /* ── A1: China property by unit ── */
+    const chinaProps = [
+      { label: '美丽园 28B',    v: 4367400 },
+      { label: '成都 3701',     v: 4252850 },
+      { label: '美丽园 28E',    v: 3809200 },
+      { label: '河南漯河商铺',  v: 3504474 },
+      { label: '成都 3702',     v: 3297104 },
+      { label: '美丽园 28D',    v: 3237800 },
+    ];
+    const cnTotal = chinaProps.reduce((a,b) => a+b.v, 0);
+    new Chart(document.getElementById('chartRegion'), {
+      type: 'doughnut',
+      data: {
+        labels: chinaProps.map(p => p.label),
+        datasets: [{ data: chinaProps.map(p => p.v),
+          backgroundColor: [C.d1,C.d2,C.d3,C.d4,C.d5,C.d6],
+          borderColor: C.paper, borderWidth: 2, hoverOffset: 4 }]
+      },
+      options: { cutout: '62%', plugins: {
+        legend: { position: 'bottom', labels: { boxWidth:10, boxHeight:10, padding:12, font:{size:11} } },
+        tooltip: { backgroundColor:C.ink, padding:10, cornerRadius:0,
+          callbacks: { label: ctx => '  ' + fmtCNY(ctx.parsed) + ' · ' + (ctx.parsed/cnTotal*100).toFixed(1)+'%' } }
+      }}
+    });
+
+    /* ── A2: China by category ── */
+    const cnData = [
+      { cat:'住宅', v:3809200 }, { cat:'住宅', v:3237800 }, { cat:'住宅', v:4367400 },
+      { cat:'商铺', v:3504474 }, { cat:'办公', v:4252850 }, { cat:'办公', v:3297104 },
+    ];
+    const catMap = {};
+    cnData.forEach(d => { catMap[d.cat] = (catMap[d.cat]||0) + d.v; });
+    const catLabels = ['住宅','办公','商铺'];
+    const catVals   = catLabels.map(l => catMap[l]||0);
+    const catColors = [C.d1, C.d2, C.d3];
+    new Chart(document.getElementById('chartCategory'), {
+      type: 'bar',
+      data: { labels: catLabels, datasets: [{ data: catVals, backgroundColor: catColors, borderWidth:0, barThickness:26 }] },
+      options: { indexAxis:'y', plugins: {
+          legend:{display:false},
+          tooltip:{ backgroundColor:C.ink, padding:10, cornerRadius:0, callbacks:{ label: ctx=>'  '+fmtCNY(ctx.parsed.x) }}
+        },
+        scales: {
+          x:{ grid:{color:C.hair}, ticks:{ callback: v=>'¥'+(v/1e6).toFixed(0)+'M', font:{size:10} } },
+          y:{ grid:{display:false}, ticks:{ font:{family:"'Noto Sans SC',sans-serif",size:12}, color:C.inkSoft } }
+        }
+      }
+    });
+    const catLegendEl = document.getElementById('catLegend');
+    if (catLegendEl) {
+      const enMap = {'住宅':'Residential','办公':'Office','商铺':'Retail'};
+      catLegendEl.innerHTML = catLabels.map((l,i) =>
+        '<li><span class="lab"><span class="swatch-dot" style="background:'+catColors[i]+'"></span>'+l+' · '+enMap[l]+'</span><span class="val">'+fmtCNY(catVals[i])+'</span></li>'
+      ).join('') + '<li><span class="lab" style="color:var(--slate)">合计 (不含 39A 待补充)</span><span class="val">'+fmtCNY(catVals.reduce((a,b)=>a+b,0))+'</span></li>';
+    }
+
+    /* ── B: Overseas asset allocation ── */
+    const ovData = [
+      { label:'達芙妮 (Lucky Earn)',       v:45479207, color:C.d1 },
+      { label:'USD定存+现金 (Lucky Earn)', v:1397017,  color:C.d2 },
+      { label:'港股三只 (For Lucky)',       v:440326,   color:C.d3 },
+      { label:'基金 (For Lucky 台灣)',      v:582049,   color:C.d4 },
+      { label:'现金 (For Lucky)',           v:190824,   color:C.d5 },
+    ];
+    const ovTotal = ovData.reduce((a,b)=>a+b.v, 0);
+    new Chart(document.getElementById('chartOverseas'), {
+      type: 'doughnut',
+      data: { labels: ovData.map(d=>d.label),
+        datasets:[{ data:ovData.map(d=>d.v), backgroundColor:ovData.map(d=>d.color), borderColor:C.paper, borderWidth:2, hoverOffset:4 }]
+      },
+      options: { cutout:'62%', plugins: {
+        legend:{display:false},
+        tooltip:{ backgroundColor:C.ink, padding:10, cornerRadius:0,
+          callbacks:{ label: ctx=>'  USD '+ctx.parsed.toLocaleString('en-US')+' · '+(ctx.parsed/ovTotal*100).toFixed(1)+'%' }}
+      }}
+    });
+    const ovLegEl = document.getElementById('overseasLegend');
+    if (ovLegEl) {
+      ovLegEl.innerHTML = ovData.map(d =>
+        '<li><span class="lab"><span class="swatch-dot" style="background:'+d.color+'"></span>'+d.label+'</span><span class="val">USD '+d.v.toLocaleString('en-US')+'<br><span style="font-size:10px;color:var(--slate)">'+(d.v/ovTotal*100).toFixed(1)+'%</span></span></li>'
+      ).join('') + '<li><span class="lab" style="color:var(--slate)">合计</span><span class="val">USD '+ovTotal.toLocaleString('en-US')+'</span></li>';
+    }
+
+  }
+
+    window.addEventListener('load', buildCharts);
+</script>
+</body>
+</html>
