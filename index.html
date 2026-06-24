@@ -1380,7 +1380,8 @@
  DD.MM.YYYY-DD.MM.YYYY  [net_assets]  [twr%]  [P&L]
       const curM = txt.match(
         /本月[：:]?\s*[
-]\s*(\d{2}\.\d{2}\.\d{4})-(\d{2}\.\d{2}\.\d{4})\s+([\d\s]+?)\s+([-\d.]+)%\s+([-\d\s-]+)/
+
+]\s*(\d{2}\.\d{2}\.\d{4})-(\d{2}\.\d{2}\.\d{4})\s+([\d\s]+?)\s+([-\d.]+)%\s+([-\d\s-]+)/
       );
       if(curM){
         const p = curM[2].split('.');       // "30.04.2026" → ["30","04","2026"]
@@ -1402,30 +1403,25 @@
     function parseA02(txt){
       const out = {account:'A02', month:null, net_assets:null, twr_pct:null, pl_amount:null, flow:0};
 
-      // 1. Month from statement date
-      const mon = {January:'01',February:'02',March:'03',April:'04',May:'05',June:'06',July:'07',August:'08',September:'09',October:'10',November:'11',December:'12'};
-      const d = txt.match(/Statement of assets as of\s+(\d{1,2})\s+(\w+)\s+(\d{4})/);
-      if(d){ out.month = d[3]+'-'+(mon[d[2]]||'01'); }
+      // 1. 月份 — "As of 30 April 2026"
+      const MON = {January:'01',February:'02',March:'03',April:'04',May:'05',June:'06',
+                   July:'07',August:'08',September:'09',October:'10',November:'11',December:'12'};
+      const dmM = txt.match(/As of\s+(\d{1,2})\s+(\w+)\s+(\d{4})/);
+      if(dmM) out.month = dmM[3]+'-'+(MON[dmM[2]]||'??');
 
-      // 2. Net assets — Portfolio 02 section only (not the combined banking-relationship total).
-      const p02Idx = txt.indexOf('Portfolio 02');
-      if(p02Idx !== -1){
-        const p02Section = txt.slice(p02Idx, p02Idx + 1000);
-        const evM = p02Section.match(/End value\s+([\d\s,]+)/);
-        if(evM) out.net_assets = cleanNum(evM[1]);
-        if(out.net_assets==null){
-          const naM = p02Section.match(/Net assets\s+100\.00\s+([\d\s,]+)/);
-          if(naM) out.net_assets = cleanNum(naM[1]);
+      // 2. Current month: 后第一行 = 当月 net_assets / twr / P&L
+      //    格式: DD.MM.YYYY-DD.MM.YYYY  [net]  [twr%]  [P&L]
+      const cmM = txt.match(/Current month:\s*\n([^\n]+)/);
+      if(cmM){
+        const m2 = cmM[1].match(
+          /(\d{2}\.\d{2}\.\d{4})-(\d{2}\.\d{2}\.\d{4})\s+([\d,\s]+?)\s+([-\d.]+)%\s+([-\d,\s]+)/
+        );
+        if(m2){
+          out.net_assets = cleanNum(m2[3]);
+          out.twr_pct    = parseFloat(m2[4]);
+          out.pl_amount  = cleanNum(m2[5]);
         }
       }
-
-      // 3. Current month TWR
-      const twrM = txt.match(/Current month[^%]*?([-\d.]+)\s*%/);
-      if(twrM) out.twr_pct = parseFloat(twrM[1]);
-
-      // 4. Monthly P&L
-      const plM = txt.match(/Current month.*?(\d{2}\.\d{2}\.\d{4})\s+([\d\s,]+)\s+([-\d.]+)%\s+([-\d\s,]+)/);
-      if(plM) out.pl_amount = cleanNum(plM[4]);
 
       return out;
     }
