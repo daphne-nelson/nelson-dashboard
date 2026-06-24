@@ -536,7 +536,7 @@
         <div class="r-eyebrow">Overseas · 境外</div>
         <h4>境外金融资产</h4>
         <div class="r-en">Lucky Earn · For Lucky · BVI / HK</div>
-        <div class="r-line"><span class="l">合并净资产</span><span class="v num pos">USD 31,518,311</span></div>
+        <div class="r-line"><span class="l">合并净资产</span><span class="v num pos">USD 23,057,184</span></div>
         <div class="r-line"><span class="l">核心持仓</span><span class="v num" style="font-family:var(--font-cjk);font-size:var(--fs-small)">達芙妮 4.45亿股</span></div>
         <div class="r-line"><span class="l">2025税后收入</span><span class="v num pos">USD 1,414,115</span></div>
       </div>
@@ -1198,10 +1198,27 @@
       {month:'2026-05', account:'A01', net_assets:21918794, twr_pct:-7.19, pl_amount:-1709716, flow:-252500,   note:'达芙妮大跌'},
       {month:'2026-02', account:'A02', net_assets:1026694,  twr_pct:2.67,  pl_amount:26694,    flow:0,         note:'开仓首月'},
       {month:'2026-03', account:'A02', net_assets:953006,   twr_pct:-7.18, pl_amount:-73688,   flow:0,         note:''},
-      {month:'2026-04', account:'A02', net_assets:1057153,  twr_pct:10.88, pl_amount:103743,   flow:0,         note:''},
+      {month:'2026-04', account:'A02', net_assets:1056538,  twr_pct:10.86, pl_amount:103532,   flow:0,         note:''},
       {month:'2026-05', account:'A02', net_assets:1138390,  twr_pct:7.68,  pl_amount:81237,    flow:0,         note:''},
     ];
     const SEED_HOLDINGS = [
+      // ── 2026-04-30 ──────────────────────────────────────────────────────────
+      {as_of_date:'2026-04-30', account:'A01', name:'達芙妮 Daphne (0210.HK)', shares:'444,608,905', market_value_usd:23553560, pct_portfolio:98.63, notes:'成本HKD 0.795→市价HKD 0.415 浮亏-47.78%'},
+      {as_of_date:'2026-04-30', account:'A01', name:'RCN WOF Autocallable (Nvidia/Amazon)', shares:'250,000', market_value_usd:249425, pct_portfolio:1.04, notes:'12% Autocallable CITI 到期2026-10-06 ISIN XS3158536212'},
+      {as_of_date:'2026-04-30', account:'A01', name:'通知存款 HKD Call Deposit', shares:'', market_value_usd:51393, pct_portfolio:0.22, notes:'利率1.00%'},
+      {as_of_date:'2026-04-30', account:'A01', name:'现金账户 USD/SGD', shares:'', market_value_usd:26632, pct_portfolio:0.11, notes:''},
+      {as_of_date:'2026-04-30', account:'A02', name:'BNP AI证书 (结构性)', shares:'378', market_value_usd:66033, pct_portfolio:6.25, notes:'ISIN XS2719859246'},
+      {as_of_date:'2026-04-30', account:'A02', name:'Taiwan Semi ADR (TSM)', shares:'57', market_value_usd:22575, pct_portfolio:2.14, notes:''},
+      {as_of_date:'2026-04-30', account:'A02', name:'Oracle', shares:'105', market_value_usd:16946, pct_portfolio:1.60, notes:''},
+      {as_of_date:'2026-04-30', account:'A02', name:'Allianz SE', shares:'35', market_value_usd:15971, pct_portfolio:1.51, notes:''},
+      {as_of_date:'2026-04-30', account:'A02', name:'Deutsche Telekom', shares:'480', market_value_usd:15524, pct_portfolio:1.47, notes:''},
+      {as_of_date:'2026-04-30', account:'A02', name:'NetEase ADR', shares:'100', market_value_usd:11751, pct_portfolio:1.11, notes:''},
+      {as_of_date:'2026-04-30', account:'A02', name:'Enel SpA', shares:'1000', market_value_usd:11641, pct_portfolio:1.10, notes:''},
+      {as_of_date:'2026-04-30', account:'A02', name:'Nestlé', shares:'110', market_value_usd:11119, pct_portfolio:1.05, notes:''},
+      {as_of_date:'2026-04-30', account:'A02', name:'UBS货币基金', shares:'8.919', market_value_usd:19858, pct_portfolio:1.88, notes:''},
+      {as_of_date:'2026-04-30', account:'A02', name:'其他股票', shares:'', market_value_usd:863122, pct_portfolio:81.68, notes:''},
+      {as_of_date:'2026-04-30', account:'A02', name:'现金账户', shares:'', market_value_usd:1998, pct_portfolio:0.19, notes:''},
+      // ── 2026-05-29 ──────────────────────────────────────────────────────────
       {as_of_date:'2026-05-29', account:'A01', name:'達芙妮 Daphne (0210.HK)', shares:'444,608,905', market_value_usd:21840716, pct_portfolio:99.6, notes:'成本HKD 0.795→市价HKD 0.385 浮亏-51.99%'},
       {as_of_date:'2026-05-29', account:'A01', name:'通知存款 HKD Call Deposit', shares:'', market_value_usd:51412, pct_portfolio:0.23, notes:'利率1.00%'},
       {as_of_date:'2026-05-29', account:'A01', name:'现金账户 USD/SGD', shares:'', market_value_usd:26666, pct_portfolio:0.12, notes:''},
@@ -1381,24 +1398,26 @@
     function parseA01(txt){
       const out = {account:'A01', month:null, net_assets:null, twr_pct:null, pl_amount:null, flow:0};
 
-      // 本月: + 欧式日期行一次搞定：月份/净资产/TWR/损益
-      // 格式: 本月: DD.MM.YYYY-DD.MM.YYYY  [net_assets]  [twr%]  [P&L]
-      const curM = txt.match(
-        /本月[：:]?\s*[\n\r]\s*(\d{2}\.\d{2}\.\d{4})-(\d{2}\.\d{2}\.\d{4})\s+([\d\s]+?)\s+([-\d.]+)%\s+([-\d\s-]+)/
-      );
-      if(curM){
-        const p = curM[2].split('.');       // "30.04.2026" → ["30","04","2026"]
-        out.month      = p[2]+'-'+p[1];
-        out.net_assets = cleanNum(curM[3]);
-        out.twr_pct    = parseFloat(curM[4]);
-        out.pl_amount  = cleanNum(curM[5]);
+      // 月份 — PDF格式: "本月: DD.MM.YYYY - DD.MM.YYYY"（连字符两侧有空格）
+      const dateM = txt.match(/本月[：:]?\s*\n\s*(\d{2}\.\d{2}\.\d{4})\s*-\s*(\d{2}\.\d{2}\.\d{4})/);
+      if(dateM){ const p = dateM[2].split('.'); out.month = p[2]+'-'+p[1]; }
+      if(!out.month){
+        const dm2 = txt.match(/資產報表截至[：:]\s*(\d{4})年(\d{2})月/) ||
+                    txt.match(/资产报表截至[：:]\s*(\d{4})年(\d{2})月/);
+        if(dm2) out.month = dm2[1]+'-'+dm2[2];
       }
 
-      // Fallback 月份 — 报表标题 "資產報表截至：2026年05月31日"
-      if(!out.month){
-        const dateM = txt.match(/資產報表截至[：:]\s*(\d{4})年(\d{2})月/) ||
-                      txt.match(/资产报表截至[：:]\s*(\d{4})年(\d{2})月/);
-        if(dateM) out.month = dateM[1]+'-'+dateM[2];
+      // 净资产/TWR/损益 — portfolio overview 表格
+      // pdfminer 输出: 行1(本年), 行2(去年), 行3+4 按列合并 → 净资产[0..3]、TWR[0..3]、损益[0..3]，本月=index 2
+      const perfSect = txt.match(/本月[：:][\s\S]{1,900}?您基於/);
+      if(perfSect){
+        const s = perfSect[0];
+        const nets = s.match(/^(\d{2} \d{3} \d{3})$/mg)||[];
+        const twrs = s.match(/^(-?\d{1,3}\.\d{2})%$/mg)||[];
+        const pls  = s.match(/^(-?\d{1,3} \d{3}|-?\d \d{3} \d{3})$/mg)||[];
+        if(nets[2]) out.net_assets = cleanNum(nets[2]);
+        if(twrs[2]) out.twr_pct    = parseFloat(twrs[2]);
+        if(pls[2])  out.pl_amount  = cleanNum(pls[2]);
       }
 
       return out;
@@ -1412,17 +1431,18 @@
       const dmM = txt.match(/As of\s+(\d{1,2})\s+(\w+)\s+(\d{4})/);
       if(dmM) out.month = dmM[3]+'-'+(MON[dmM[2]]||'??');
 
-      // 2. Current month: 后第一行 = 当月 net_assets / twr / P&L
-      //    格式: DD.MM.YYYY-DD.MM.YYYY  [net]  [twr%]  [P&L]
-      const cmM = txt.match(/Current month:\s*\n([^\n]+)/);
-      if(cmM){
-        const m2 = cmM[1].match(
-          /(\d{2}\.\d{2}\.\d{4})-(\d{2}\.\d{2}\.\d{4})\s+([\d,\s]+?)\s+([-\d.]+)%\s+([-\d,\s]+)/
-        );
-        if(m2){
-          out.net_assets = cleanNum(m2[3]);
-          out.twr_pct    = parseFloat(m2[4]);
-          out.pl_amount  = cleanNum(m2[5]);
+      // 2. 净资产/TWR/损益 — "Performance\nvalue" 后 token 序列
+      // 顺序: net(ytd) twr%(ytd) net(cur) twr%(cur) net(prev) twr%(prev) pl(ytd) pl(cur) pl(prev)
+      // 当月 = tokens[2](net), tokens[3](twr%), tokens[7](pl)
+      const pvIdx = txt.indexOf('Performance\nvalue');
+      const cmIdx = txt.indexOf('Current month:');
+      if(pvIdx >= 0 && cmIdx >= 0 && pvIdx > cmIdx){
+        const after = txt.slice(pvIdx + 18, pvIdx + 700);
+        const tokens = [...after.matchAll(/(-?[\d][\d ]*[\d]|-?[\d.]+%)/g)].map(m=>m[1]);
+        if(tokens.length >= 8){
+          out.net_assets = cleanNum(tokens[2]);
+          out.twr_pct    = parseFloat(tokens[3]);
+          out.pl_amount  = cleanNum(tokens[7]);
         }
       }
 
