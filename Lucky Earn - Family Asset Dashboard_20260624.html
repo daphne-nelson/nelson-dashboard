@@ -1347,8 +1347,7 @@
       document.getElementById('le_kpiStrip').innerHTML =
         cell('UBS 总净资产', fmt(total), 'var(--pos)') +
         cell('LuckyEarn_账户01', fmt(a01?a01.net_assets:0), null) +
-        cell('LuckyEarn_账户02', fmt(a02?a02.net_assets:0), 'var(--pos)', `<div style="font-size:var(--fs-small);color:${signColor(a02Pct)};font-family:var(--font-cjk);margin-top:2px;">${minusGlyph(pct(a02Pct))} 自开仓</div>`) +
-        `<div style="padding:14px 18px;"><div style="font-size:var(--fs-caption);letter-spacing:.1em;text-transform:uppercase;color:var(--slate);margin-bottom:4px;">年初至今 TWR (01)</div><div style="font-family:var(--font-display);font-size:17px;font-weight:600;font-variant-numeric:tabular-nums;color:${signColor(ytdPct)};">${minusGlyph(pct(ytdPct))}</div></div>`;
+        cell('LuckyEarn_账户02', fmt(a02?a02.net_assets:0), 'var(--pos)', `<div style="font-size:var(--fs-small);color:${signColor(a02Pct)};font-family:var(--font-cjk);margin-top:2px;">${minusGlyph(pct(a02Pct))} 自开仓</div>`);
     }
 
     // ── Holdings cards ──
@@ -1375,9 +1374,10 @@
       document.getElementById('le_acct01Card').innerHTML = `
         <div style="font-family:var(--font-cjk);font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px;">LuckyEarn_账户01</div>
         <div style="font-size:var(--fs-caption);color:var(--slate);font-variant-numeric:tabular-nums;margin-bottom:12px;">546-885658-01 · Lucky Earn Investment Ltd</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline);margin-bottom:14px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline);margin-bottom:14px;">
           <div style="padding:10px 0;border-right:1px solid var(--hairline);"><div style="font-size:var(--fs-caption);color:var(--slate);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;">净资产</div><div style="font-family:var(--font-display);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;">USD ${fmt(a01?a01.net_assets:0)}</div></div>
-          <div style="padding:10px 14px;"><div style="font-size:var(--fs-caption);color:var(--slate);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;">YTD TWR</div><div style="font-family:var(--font-display);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;color:${signColor(ytd)};">${minusGlyph(pct(ytd))}</div></div>
+          <div style="padding:10px 12px;border-right:1px solid var(--hairline);"><div style="font-size:var(--fs-caption);color:var(--slate);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;">YTD TWR</div><div style="font-family:var(--font-display);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;color:${signColor(ytd)};">${minusGlyph(pct(ytd))}</div></div>
+          <div style="padding:10px 12px;"><div style="font-size:var(--fs-caption);color:var(--slate);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;">最新单月</div><div style="font-family:var(--font-display);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;color:${signColor(a01?a01.twr_pct:0)};">${minusGlyph(pct(a01?a01.twr_pct:0))}</div></div>
         </div>
         <div id="holdingsA01Table" style="overflow-x:auto;margin-top:4px;"></div>`;
 
