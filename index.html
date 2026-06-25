@@ -1330,22 +1330,28 @@
     function renderKPI(){
       const a01 = latestOf('A01'), a02 = latestOf('A02');
       const total = (a01?a01.net_assets:0) + (a02?a02.net_assets:0);
-      // compound A01 TWR YTD
+      // A01 YTD compound
       const a01rows = MONTHLY.filter(r=>r.account==='A01').sort((a,b)=>a.month.localeCompare(b.month));
-      let ytd = a01rows.reduce((acc,r)=>acc*(1+(r.twr_pct||0)/100),1);
-      const ytdPct = (ytd-1)*100;
-      // A02 since inception compound
+      const a01YtdPct = (a01rows.reduce((acc,r)=>acc*(1+(r.twr_pct||0)/100),1)-1)*100;
+      // A02 since inception
       const a02rows = MONTHLY.filter(r=>r.account==='A02').sort((a,b)=>a.month.localeCompare(b.month));
       const a02YtdKpi = a02rows.find(r=>r.ytd_twr!=null)?.ytd_twr;
       const a02Pct = a02YtdKpi != null ? parseFloat(a02YtdKpi) : (a02rows.reduce((acc,r)=>acc*(1+(r.twr_pct||0)/100),1)-1)*100;
-      const cell = (label,val,color,sub)=>`<div style="padding:14px 18px;border-right:1px solid var(--hairline);">
-        <div style="font-size:var(--fs-caption);letter-spacing:.1em;text-transform:uppercase;color:var(--slate);margin-bottom:4px;">${label}</div>
-        <div style="font-family:var(--font-display);font-size:17px;font-weight:600;font-variant-numeric:tabular-nums;${color?'color:'+color:''}">USD ${val}</div>
-        ${sub||''}</div>`;
       document.getElementById('le_kpiStrip').innerHTML =
-        cell('UBS 总净资产', fmt(total), 'var(--pos)') +
-        cell('LuckyEarn_账户01', fmt(a01?a01.net_assets:0), null) +
-        cell('LuckyEarn_账户02', fmt(a02?a02.net_assets:0), 'var(--pos)', `<div style="font-size:var(--fs-small);color:${signColor(a02Pct)};font-family:var(--font-cjk);margin-top:2px;">${minusGlyph(pct(a02Pct))} 自开仓</div>`);
+        `<div style="padding:14px 18px;border-right:1px solid var(--hairline);">
+          <div style="font-size:var(--fs-caption);letter-spacing:.1em;text-transform:uppercase;color:var(--slate);margin-bottom:4px;">UBS 总净资产</div>
+          <div id="kpi_total" style="font-family:var(--font-display);font-size:17px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--pos)">USD ${fmt(total)}</div>
+        </div>` +
+        `<div style="padding:14px 18px;border-right:1px solid var(--hairline);">
+          <div style="font-size:var(--fs-caption);letter-spacing:.1em;text-transform:uppercase;color:var(--slate);margin-bottom:4px;">LuckyEarn_账户01</div>
+          <div id="kpi_a01" style="font-family:var(--font-display);font-size:17px;font-weight:600;font-variant-numeric:tabular-nums;">USD ${fmt(a01?a01.net_assets:0)}</div>
+          <div style="font-size:var(--fs-small);color:var(--slate);font-family:var(--font-cjk);margin-top:2px;">年初至今 <span id="kpi_a01_ytd" style="color:${signColor(a01YtdPct)};font-weight:600;">${minusGlyph(pct(a01YtdPct))}</span></div>
+        </div>` +
+        `<div style="padding:14px 18px;border-right:1px solid var(--hairline);">
+          <div style="font-size:var(--fs-caption);letter-spacing:.1em;text-transform:uppercase;color:var(--slate);margin-bottom:4px;">LuckyEarn_账户02</div>
+          <div id="kpi_a02" style="font-family:var(--font-display);font-size:17px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--pos)">USD ${fmt(a02?a02.net_assets:0)}</div>
+          <div style="font-size:var(--fs-small);font-family:var(--font-cjk);margin-top:2px;"><span id="kpi_a02_ytd" style="color:${signColor(a02Pct)};font-weight:600;">${minusGlyph(pct(a02Pct))}</span> 自开仓</div>
+        </div>`;
     }
 
     // ── Holdings cards ──
@@ -2195,6 +2201,18 @@ function parseA01Holdings(txt, asOfDate) {
       const elY2 = document.getElementById('a02_card_ytd');
       if(elY1){ elY1.textContent = minusGlyph(pct(a01Ytd)); elY1.style.color = signColor(a01Ytd); }
       if(elY2){ elY2.textContent = minusGlyph(pct(a02Ytd)); elY2.style.color = signColor(a02Ytd); }
+      // 同步顶部 KPI strip
+      const kTotal = document.getElementById('kpi_total');
+      const kA01 = document.getElementById('kpi_a01');
+      const kA01Ytd = document.getElementById('kpi_a01_ytd');
+      const kA02 = document.getElementById('kpi_a02');
+      const kA02Ytd = document.getElementById('kpi_a02_ytd');
+      const kpiTotal = (m1?m1.net_assets:0) + (m2?m2.net_assets:0);
+      if(kTotal) kTotal.textContent = 'USD ' + fmt(kpiTotal);
+      if(kA01 && m1) kA01.textContent = 'USD ' + fmt(m1.net_assets);
+      if(kA01Ytd){ kA01Ytd.textContent = minusGlyph(pct(a01Ytd)); kA01Ytd.style.color = signColor(a01Ytd); }
+      if(kA02 && m2) kA02.textContent = 'USD ' + fmt(m2.net_assets);
+      if(kA02Ytd){ kA02Ytd.textContent = minusGlyph(pct(a02Ytd)); kA02Ytd.style.color = signColor(a02Ytd); }
     }
 
     function renderHoldingsTable(monthData) {
@@ -2448,35 +2466,4 @@ function parseA01Holdings(txt, asOfDate) {
       ).join('') + '<li><span class="lab" style="color:var(--slate)">合计 (不含 39A 待补充)</span><span class="val">'+fmtCNY(catVals.reduce((a,b)=>a+b,0))+'</span></li>';
     }
 
-    /* ── B: Overseas asset allocation (May 2026 UBS) ── */
-    const ovData = [
-      { label:'達芙妮 Daphne (Lucky Earn A01)', v:21840716, color:C.d1 },
-      { label:'A01 定存+现金 (Lucky Earn)',      v:78078,   color:C.d2 },
-      { label:'A02 股票组合 (Lucky Earn)',        v:1138390, color:C.d3 },
-      { label:'债券+结构性 (For Lucky)',           v:799052,  color:C.d4 },
-      { label:'现金+货币基金 (For Lucky)',         v:803919,  color:C.d5 },
-    ];
-    const ovTotal = ovData.reduce((a,b)=>a+b.v, 0);
-    new Chart(document.getElementById('chartOverseas'), {
-      type: 'doughnut',
-      data: { labels: ovData.map(d=>d.label),
-        datasets:[{ data:ovData.map(d=>d.v), backgroundColor:ovData.map(d=>d.color), borderColor:C.paper, borderWidth:2, hoverOffset:4 }]
-      },
-      options: { cutout:'62%', plugins: {
-        legend:{display:false},
-        tooltip:{ backgroundColor:C.ink, padding:10, cornerRadius:0,
-          callbacks:{ label: ctx=>'  USD '+ctx.parsed.toLocaleString('en-US')+' · '+(ctx.parsed/ovTotal*100).toFixed(1)+'%' }}
-      }}
-    });
-    const ovLegEl = document.getElementById('overseasLegend');
-    if (ovLegEl) {
-      ovLegEl.innerHTML = ovData.map(d =>
-        '<li><span class="lab"><span class="swatch-dot" style="background:'+d.color+'"></span>'+d.label+'</span><span class="val">USD '+d.v.toLocaleString('en-US')+'<br><span style="font-size:10px;color:var(--slate)">'+(d.v/ovTotal*100).toFixed(1)+'%</span></span></li>'
-      ).join('') + '<li><span class="lab" style="color:var(--slate)">合计</span><span class="val">USD '+ovTotal.toLocaleString('en-US')+'</span></li>';
-    }
-  }
-
-  window.addEventListener('load', buildCharts);
-</script>
-</body>
-</html>
+   
