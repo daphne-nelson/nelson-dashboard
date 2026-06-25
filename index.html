@@ -1374,8 +1374,8 @@
         <div style="font-size:var(--fs-caption);color:var(--slate);font-variant-numeric:tabular-nums;margin-bottom:12px;">546-885658-01 · Lucky Earn Investment Ltd</div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline);margin-bottom:14px;">
           <div style="padding:10px 0;border-right:1px solid var(--hairline);"><div style="font-size:var(--fs-caption);color:var(--slate);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;">净资产</div><div id="a01_card_nav" style="font-family:var(--font-display);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;">USD ${fmt(a01?a01.net_assets:0)}</div></div>
-          <div style="padding:10px 12px;border-right:1px solid var(--hairline);"><div style="font-size:var(--fs-caption);color:var(--slate);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;">YTD TWR</div><div style="font-family:var(--font-display);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;color:${signColor(ytd)};">${minusGlyph(pct(ytd))}</div></div>
-          <div style="padding:10px 12px;"><div style="font-size:var(--fs-caption);color:var(--slate);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;">最新单月</div><div style="font-family:var(--font-display);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;color:${signColor(a01?a01.twr_pct:0)};">${minusGlyph(pct(a01?a01.twr_pct:0))}</div></div>
+          <div style="padding:10px 12px;border-right:1px solid var(--hairline);"><div style="font-size:var(--fs-caption);color:var(--slate);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;">YTD TWR</div><div id="a01_card_ytd" style="font-family:var(--font-display);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;color:${signColor(ytd)};">${minusGlyph(pct(ytd))}</div></div>
+          <div style="padding:10px 12px;"><div style="font-size:var(--fs-caption);color:var(--slate);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;">最新单月</div><div id="a01_card_monthly" style="font-family:var(--font-display);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;color:${signColor(a01?a01.twr_pct:0)};">${minusGlyph(pct(a01?a01.twr_pct:0))}</div></div>
         </div>
         <div id="holdingsA01Table" style="overflow-x:auto;margin-top:4px;"></div>`;
 
@@ -1390,8 +1390,8 @@
         <div style="font-size:var(--fs-caption);color:var(--slate);font-variant-numeric:tabular-nums;margin-bottom:12px;">546-885658-02 · Lucky Earn Investment Ltd</div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline);margin-bottom:14px;">
           <div style="padding:10px 0;border-right:1px solid var(--hairline);"><div style="font-size:var(--fs-caption);color:var(--slate);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;">净资产</div><div id="a02_card_nav" style="font-family:var(--font-display);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;">USD ${fmt(a02?a02.net_assets:0)}</div></div>
-          <div style="padding:10px 12px;border-right:1px solid var(--hairline);"><div style="font-size:var(--fs-caption);color:var(--slate);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;">自开仓</div><div style="font-family:var(--font-display);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;color:${signColor(a02ytd)};">${minusGlyph(pct(a02ytd))}</div></div>
-          <div style="padding:10px 12px;"><div style="font-size:var(--fs-caption);color:var(--slate);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;">最新单月</div><div style="font-family:var(--font-display);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;color:${signColor(a02month)};">${minusGlyph(pct(a02month))}</div></div>
+          <div style="padding:10px 12px;border-right:1px solid var(--hairline);"><div style="font-size:var(--fs-caption);color:var(--slate);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;">自开仓</div><div id="a02_card_ytd" style="font-family:var(--font-display);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;color:${signColor(a02ytd)};">${minusGlyph(pct(a02ytd))}</div></div>
+          <div style="padding:10px 12px;"><div style="font-size:var(--fs-caption);color:var(--slate);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;">最新单月</div><div id="a02_card_monthly" style="font-family:var(--font-display);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;color:${signColor(a02month)};">${minusGlyph(pct(a02month))}</div></div>
         </div>
         <div id="holdingsA02Table" style="overflow-x:auto;margin-top:4px;"></div>`;
     }
@@ -1462,13 +1462,13 @@
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;padding:14px 0;border-bottom:1px solid var(--hairline);margin-bottom:16px;">
             <div style="padding-right:16px;border-right:1px solid var(--hairline);">
               <div style="font-size:var(--fs-caption);color:var(--slate);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;">UBS净资产</div>
-              <div style="font-family:var(--font-display);font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;">USD ${fmt(latest.net_assets)}</div>
-              <div style="font-size:var(--fs-small);color:var(--slate);margin-top:3px;">2026-05-29 (最新)</div>
+              <div id="fl_card_nav" style="font-family:var(--font-display);font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;">USD ${fmt(latest.net_assets)}</div>
+              <div id="fl_card_nav_lbl" style="font-size:var(--fs-small);color:var(--slate);margin-top:3px;">2026-05-29 (最新)</div>
             </div>
             <div style="padding:0 16px;border-right:1px solid var(--hairline);">
-              <div style="font-size:var(--fs-caption);color:var(--slate);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;">最新单月 TWR</div>
-              <div style="font-family:var(--font-display);font-size:20px;font-weight:600;color:${signColor(latest.twr_pct)};font-variant-numeric:tabular-nums;">${minusGlyph(pct(latest.twr_pct))}</div>
-              <div style="font-size:var(--fs-small);color:var(--slate);margin-top:3px;">5月</div>
+              <div style="font-size:var(--fs-caption);color:var(--slate);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;">当月 TWR</div>
+              <div id="fl_card_monthly" style="font-family:var(--font-display);font-size:20px;font-weight:600;color:${signColor(latest.twr_pct)};font-variant-numeric:tabular-nums;">${minusGlyph(pct(latest.twr_pct))}</div>
+              <div id="fl_card_monthly_lbl" style="font-size:var(--fs-small);color:var(--slate);margin-top:3px;">5月</div>
             </div>
             <div style="padding:0 0 0 16px;">
               <div style="font-size:var(--fs-caption);color:var(--slate);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;">YTD 2026</div>
@@ -1547,6 +1547,17 @@
         b.style.background = b.dataset.date===date?'var(--ink)':'transparent';
         b.style.color = b.dataset.date===date?'var(--bg)':'var(--ink-soft)';
       });
+      // 同步 FL 卡片：净资产 + 当月 TWR
+      const month = date.substring(0,7); // '2026-04-30' -> '2026-04'
+      const flRow = FL_SEED_MONTHLY.find(r=>r.month===month);
+      const cnNav = document.getElementById('fl_card_nav');
+      const cnLbl = document.getElementById('fl_card_nav_lbl');
+      const cnMon = document.getElementById('fl_card_monthly');
+      const cnMonLbl = document.getElementById('fl_card_monthly_lbl');
+      if(flRow && cnNav){ cnNav.textContent = 'USD ' + fmt(flRow.net_assets); }
+      if(flRow && cnLbl){ cnLbl.textContent = date + (date===FL_SEED_MONTHLY.slice().sort((a,b)=>b.month.localeCompare(a.month))[0]?.month+'-'?'':' (最新)'); cnLbl.textContent = date; }
+      if(flRow && cnMon){ cnMon.textContent = minusGlyph(pct(flRow.twr_pct)); cnMon.style.color = signColor(flRow.twr_pct); }
+      if(flRow && cnMonLbl){ const lbl={'2026-03':'3月','2026-04':'4月','2026-05':'5月','2026-06':'6月','2026-07':'7月','2026-08':'8月'}; cnMonLbl.textContent = lbl[month]||month; }
       renderFLHoldings();
     }
 
@@ -1567,8 +1578,15 @@
       }).join('');
 
       // Holdings for selected month
-      const rows = FL_SEED_HOLDINGS.filter(h=>h.as_of_date===flHoldingsMonth);
-      const total = rows.reduce((s,h)=>s+h.market_value_usd,0);
+      const allRows = FL_SEED_HOLDINGS.filter(h=>h.as_of_date===flHoldingsMonth);
+      // 前15大，其余合并
+      const sortedFL = [...allRows].sort((a,b)=>b.market_value_usd-a.market_value_usd);
+      const topFL = sortedFL.slice(0,15);
+      const restFL = sortedFL.slice(15);
+      const rows = restFL.length
+        ? [...topFL, {name:`其他 (${restFL.length}项)`, market_value_usd:restFL.reduce((s,r)=>s+r.market_value_usd,0), pct_portfolio:restFL.reduce((s,r)=>s+r.pct_portfolio,0), notes:''}]
+        : topFL;
+      const total = allRows.reduce((s,h)=>s+h.market_value_usd,0);
       tableEl.innerHTML = `
         <thead><tr>
           <th style="text-align:left">资产类别</th>
@@ -1580,12 +1598,12 @@
           ${rows.map(h=>`<tr>
             <td>${h.name}</td>
             <td style="text-align:right;font-variant-numeric:tabular-nums;">${fmt(h.market_value_usd)}</td>
-            <td style="text-align:right;font-variant-numeric:tabular-nums;">${h.pct_portfolio.toFixed(2)}%</td>
-            <td class="txt" style="font-size:11px;color:var(--slate);">${h.notes}</td>
+            <td style="text-align:right;font-variant-numeric:tabular-nums;">${(h.pct_portfolio||0).toFixed(2)}%</td>
+            <td class="txt" style="font-size:11px;color:var(--slate);">${h.notes||''}</td>
           </tr>`).join('')}
           <tr class="total">
             <td>合计</td>
-            <td style="text-align:right;font-variant-numeric:tabular-nums;">—</td>
+            <td style="text-align:right;font-variant-numeric:tabular-nums;">${fmt(total)}</td>
             <td style="text-align:right;font-variant-numeric:tabular-nums;">100%</td>
             <td></td>
           </tr>
@@ -2151,13 +2169,32 @@ function parseA01Holdings(txt, asOfDate) {
     function switchHoldingsTab(month) {
       activeHoldingsMonth = month;
       renderHoldingsHistory();
-      // 同步卡片净资产：切换月份时显示该月净资产，而非始终显示最新月
-      const m = MONTHLY.find(r=>r.account==='A01'&&r.month===month);
-      const m2 = MONTHLY.find(r=>r.account==='A02'&&r.month===month);
+      // 切换月份时同步卡片：净资产 + 当月TWR + YTD
+      const a01rows = MONTHLY.filter(r=>r.account==='A01').sort((a,b)=>a.month.localeCompare(b.month));
+      const a02rows = MONTHLY.filter(r=>r.account==='A02').sort((a,b)=>a.month.localeCompare(b.month));
+      const m1 = a01rows.find(r=>r.month===month);
+      const m2 = a02rows.find(r=>r.month===month);
+      // 净资产
       const el1 = document.getElementById('a01_card_nav');
       const el2 = document.getElementById('a02_card_nav');
-      if(el1 && m) el1.textContent = 'USD ' + fmt(m.net_assets);
+      if(el1 && m1) el1.textContent = 'USD ' + fmt(m1.net_assets);
       if(el2 && m2) el2.textContent = 'USD ' + fmt(m2.net_assets);
+      // 当月 TWR
+      const elM1 = document.getElementById('a01_card_monthly');
+      const elM2 = document.getElementById('a02_card_monthly');
+      if(elM1 && m1){ elM1.textContent = minusGlyph(pct(m1.twr_pct)); elM1.style.color = signColor(m1.twr_pct); }
+      if(elM2 && m2){ elM2.textContent = minusGlyph(pct(m2.twr_pct)); elM2.style.color = signColor(m2.twr_pct); }
+      // YTD TWR 至所选月份
+      const a01Ytd = (a01rows.filter(r=>r.month<=month).reduce((acc,r)=>acc*(1+(r.twr_pct||0)/100),1)-1)*100;
+      const a02RowsUpTo = a02rows.filter(r=>r.month<=month);
+      const a02YtdStored = [...a02RowsUpTo].reverse().find(r=>r.ytd_twr!=null);
+      const a02Ytd = (a02YtdStored && a02YtdStored.month===month)
+        ? parseFloat(a02YtdStored.ytd_twr)
+        : (a02RowsUpTo.reduce((acc,r)=>acc*(1+(r.twr_pct||0)/100),1)-1)*100;
+      const elY1 = document.getElementById('a01_card_ytd');
+      const elY2 = document.getElementById('a02_card_ytd');
+      if(elY1){ elY1.textContent = minusGlyph(pct(a01Ytd)); elY1.style.color = signColor(a01Ytd); }
+      if(elY2){ elY2.textContent = minusGlyph(pct(a02Ytd)); elY2.style.color = signColor(a02Ytd); }
     }
 
     function renderHoldingsTable(monthData) {
@@ -2165,8 +2202,18 @@ function parseA01Holdings(txt, asOfDate) {
       const pct2 = v => v==null?'—':Number(v).toFixed(v<1?2:1)+'%';
       function makeTable(rows, cols) {
         if (!rows||!rows.length) return '<div style="font-size:12px;color:var(--slate);font-family:var(--font-cjk);padding:8px 0;">暂无数据</div>';
+        // 按市值降序，前15大显示，其余合并为"其他股票"
+        const sorted = [...rows].sort((a,b)=>(Number(b.market_value_usd)||0)-(Number(a.market_value_usd)||0));
+        const top = sorted.slice(0,15);
+        const rest = sorted.slice(15);
+        let displayRows = top;
+        if(rest.length){
+          const restVal = rest.reduce((s,r)=>s+(Number(r.market_value_usd)||0),0);
+          const restPct = rest.reduce((s,r)=>s+(Number(r.pct_portfolio)||0),0);
+          displayRows = [...top, {name:`其他股票 (${rest.length}只)`,shares:'—',market_value_usd:restVal,pct_portfolio:restPct,notes:''}];
+        }
         let total = 0;
-        const bodyRows = rows.map(h => {
+        const bodyRows = displayRows.map(h => {
           total += Number(h.market_value_usd)||0;
           if (cols===5) return `<tr><td>${h.name||'—'}</td><td>${h.shares||'—'}</td><td>${fmt2(h.market_value_usd)}</td><td>${pct2(h.pct_portfolio)}</td><td class="txt">${h.notes||'—'}</td></tr>`;
           return `<tr><td>${h.name||'—'}</td><td>${h.shares||'—'}</td><td>${fmt2(h.market_value_usd)}</td><td>${pct2(h.pct_portfolio)}</td></tr>`;
@@ -2366,67 +2413,4 @@ function parseA01Holdings(txt, asOfDate) {
 
     /* ── A2: China by category ── */
     const cnData = [
-      { cat:'住宅', v:3809200 }, { cat:'住宅', v:3237800 }, { cat:'住宅', v:4367400 },
-      { cat:'商铺', v:3504474 }, { cat:'办公', v:4252850 }, { cat:'办公', v:3297104 },
-    ];
-    const catMap = {};
-    cnData.forEach(d => { catMap[d.cat] = (catMap[d.cat]||0) + d.v; });
-    const catLabels = ['住宅','办公','商铺'];
-    const catVals   = catLabels.map(l => catMap[l]||0);
-    const catColors = [C.d1, C.d2, C.d3];
-    new Chart(document.getElementById('chartCategory'), {
-      type: 'bar',
-      data: { labels: catLabels, datasets: [{ data: catVals, backgroundColor: catColors, borderWidth:0, barThickness:26 }] },
-      options: { indexAxis:'y', plugins: {
-          legend:{display:false},
-          tooltip:{ backgroundColor:C.ink, padding:10, cornerRadius:0, callbacks:{ label: ctx=>'  '+fmtCNY(ctx.parsed.x) }}
-        },
-        scales: {
-          x:{ grid:{color:C.hair}, ticks:{ callback: v=>'¥'+(v/1e6).toFixed(0)+'M', font:{size:10} } },
-          y:{ grid:{display:false}, ticks:{ font:{family:"'Noto Sans SC',sans-serif",size:12}, color:C.inkSoft } }
-        }
-      }
-    });
-    const catLegendEl = document.getElementById('catLegend');
-    if (catLegendEl) {
-      const enMap = {'住宅':'Residential','办公':'Office','商铺':'Retail'};
-      catLegendEl.innerHTML = catLabels.map((l,i) =>
-        '<li><span class="lab"><span class="swatch-dot" style="background:'+catColors[i]+'"></span>'+l+' · '+enMap[l]+'</span><span class="val">'+fmtCNY(catVals[i])+'</span></li>'
-      ).join('') + '<li><span class="lab" style="color:var(--slate)">合计 (不含 39A 待补充)</span><span class="val">'+fmtCNY(catVals.reduce((a,b)=>a+b,0))+'</span></li>';
-    }
-
-    /* ── B: Overseas asset allocation ── */
-    const ovData = [
-      { label:'達芙妮 Daphne (Lucky Earn A01)',  v:21840716, color:C.d1 },
-      { label:'A01 定存+现金 (Lucky Earn)',       v:78078,    color:C.d2 },
-      { label:'A02 美欧股票组合 (Lucky Earn)',    v:1138390,  color:C.d3 },
-      { label:'For Lucky 债券+结构性 (UBS)',      v:799052,   color:C.d4 },
-      { label:'For Lucky 存款+基金+股票 (UBS)',   v:866864,   color:C.d5 },
-    ];
-    const ovTotal = ovData.reduce((a,b)=>a+b.v, 0);
-    new Chart(document.getElementById('chartOverseas'), {
-      type: 'doughnut',
-      data: { labels: ovData.map(d=>d.label),
-        datasets:[{ data:ovData.map(d=>d.v), backgroundColor:ovData.map(d=>d.color), borderColor:C.paper, borderWidth:2, hoverOffset:4 }]
-      },
-      options: { cutout:'62%', plugins: {
-        legend:{display:false},
-        tooltip:{ backgroundColor:C.ink, padding:10, cornerRadius:0,
-          callbacks:{ label: ctx=>'  USD '+ctx.parsed.toLocaleString('en-US')+' · '+(ctx.parsed/ovTotal*100).toFixed(1)+'%' }}
-      }}
-    });
-    const ovLegEl = document.getElementById('overseasLegend');
-    if (ovLegEl) {
-      ovLegEl.innerHTML = ovData.map(d =>
-        '<li><span class="lab"><span class="swatch-dot" style="background:'+d.color+'"></span>'+d.label+'</span><span class="val">USD '+d.v.toLocaleString('en-US')+'<br><span style="font-size:10px;color:var(--slate)">'+(d.v/ovTotal*100).toFixed(1)+'%</span></span></li>'
-      ).join('') + '<li><span class="lab" style="color:var(--slate)">合计</span><span class="val">USD '+ovTotal.toLocaleString('en-US')+'</span></li>';
-    }
-
-  }
-
-    window.switchHoldingsTab = switchHoldingsTab;
-    window.addEventListener('load', buildCharts);
-</script>
-</body>
-</html>
-                                                                                                                                                                                
+      { cat:'住宅', v:3809200 }, { cat:
