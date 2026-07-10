@@ -1195,6 +1195,8 @@
       {month:'2026-03', account:'A02', net_assets:953006,   twr_pct:-7.18, pl_amount:-73688,   flow:0,         note:''},
       {month:'2026-04', account:'A02', net_assets:1056538,  twr_pct:10.86, pl_amount:103532,   flow:0,         note:''},
       {month:'2026-05', account:'A02', net_assets:1138390,  twr_pct:7.68,  pl_amount:81237,    flow:0,         ytd_twr:13.84, note:''},
+      {month:'2026-06', account:'A01', net_assets:19630506, twr_pct:-5.44, pl_amount:-1149579, flow:-1138709,   ytd_twr:-10.44, note:''},
+      {month:'2026-06', account:'A02', net_assets:1071482,  twr_pct:-5.95, pl_amount:-67800,   flow:0,          ytd_twr:7.15,   note:''},
     ];
     const SEED_HOLDINGS = [
       // ── 2026-04-30 ──────────────────────────────────────────────────────────
@@ -1285,15 +1287,79 @@
       {as_of_date:'2026-05-29', account:'A02', name:'Adobe Inc. (ADBE)', shares:'20', market_value_usd:5184, pct_portfolio:0.46, notes:''},
       {as_of_date:'2026-05-29', account:'A02', name:'NN Group N.V.', shares:'55', market_value_usd:4617, pct_portfolio:0.41, notes:''},
       {as_of_date:'2026-05-29', account:'A02', name:'现金账户', shares:'', market_value_usd:1574, pct_portfolio:0.14, notes:''},
+      // ── 2026-06-30 ──────────────────────────────────────────────────────────────
+      {as_of_date:'2026-06-30', account:'A01', name:'達芙妮 Daphne (0210.HK)', shares:'444,608,905', market_value_usd:19559946, pct_portfolio:99.64, notes:'成本HKD 0.795→市价HKD 0.345 浮亏-56.59%'},
+      {as_of_date:'2026-06-30', account:'A01', name:'通知存款 HKD Call Deposit', shares:'', market_value_usd:51577, pct_portfolio:0.26, notes:'利率1.00%'},
+      {as_of_date:'2026-06-30', account:'A01', name:'现金账户 (USD/SGD)', shares:'', market_value_usd:18983, pct_portfolio:0.10, notes:'USD 18,177 + SGD 1,042'},
+      {as_of_date:'2026-06-30', account:'A02', name:'BNP AI证书 (XS2719859246)', shares:'378', market_value_usd:68286, pct_portfolio:6.37, notes:'Actively Managed Certificate ISIN XS2719859246'},
+      {as_of_date:'2026-06-30', account:'A02', name:'NVIDIA Corp.', shares:'377', market_value_usd:75434, pct_portfolio:7.04, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'Microsoft Corp.', shares:'154', market_value_usd:57445, pct_portfolio:5.36, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'Broadcom Inc.', shares:'142', market_value_usd:53641, pct_portfolio:5.01, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'Alphabet Inc. -C-', shares:'113', market_value_usd:39926, pct_portfolio:3.73, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'Apple Inc. (AAPL)', shares:'120', market_value_usd:34723, pct_portfolio:3.24, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'Taiwan Semiconductor ADR (TSM)', shares:'57', market_value_usd:27221, pct_portfolio:2.54, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'Cisco Systems Inc.', shares:'225', market_value_usd:26429, pct_portfolio:2.47, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'Texas Instruments Inc.', shares:'81', market_value_usd:24144, pct_portfolio:2.25, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'SAP SE', shares:'150', market_value_usd:22980, pct_portfolio:2.14, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'ORIX Corp. (8591)', shares:'600', market_value_usd:22701, pct_portfolio:2.12, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'AbbVie Inc.', shares:'85', market_value_usd:21389, pct_portfolio:2.00, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'Oracle Corp. (ORCL)', shares:'146', market_value_usd:21396, pct_portfolio:2.00, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'Meta Platforms Inc -A-', shares:'37', market_value_usd:20842, pct_portfolio:1.95, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'UBS (Lux) Money Market Fund', shares:'8.919', market_value_usd:19979, pct_portfolio:1.86, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'JPMorgan Chase & Co', shares:'58', market_value_usd:18985, pct_portfolio:1.77, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'Snowflake Inc', shares:'73', market_value_usd:18579, pct_portfolio:1.73, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'BAE Systems Plc', shares:'700', market_value_usd:17132, pct_portfolio:1.60, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'Banco Santander SA', shares:'1,230', market_value_usd:16993, pct_portfolio:1.59, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'Amgen Inc. (AMGN)', shares:'46', market_value_usd:16658, pct_portfolio:1.55, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'Allianz SE (ALV)', shares:'35', market_value_usd:16570, pct_portfolio:1.55, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'Emerson Electric Co', shares:'110', market_value_usd:15747, pct_portfolio:1.47, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'Datadog Inc. -A-', shares:'60', market_value_usd:15622, pct_portfolio:1.46, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'AstraZeneca Plc', shares:'83', market_value_usd:15533, pct_portfolio:1.45, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'United Parcel Service (UPS)', shares:'142', market_value_usd:15265, pct_portfolio:1.42, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'CrowdStrike Holdings -A-', shares:'20', market_value_usd:15263, pct_portfolio:1.42, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'McDonald\'s Corp.', shares:'55', market_value_usd:14867, pct_portfolio:1.39, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'Alibaba Group ADR (BABA)', shares:'150', market_value_usd:14397, pct_portfolio:1.34, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'ASML Holding NV', shares:'7', market_value_usd:13777, pct_portfolio:1.29, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'CVS Health Corp.', shares:'130', market_value_usd:13449, pct_portfolio:1.26, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'Air Products & Chemicals', shares:'45', market_value_usd:13193, pct_portfolio:1.23, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'NetEase ADR (NTES)', shares:'100', market_value_usd:12814, pct_portfolio:1.20, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'Verizon Communications', shares:'300', market_value_usd:12702, pct_portfolio:1.19, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'Intuitive Surgical Inc.', shares:'32', market_value_usd:12726, pct_portfolio:1.19, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'RELX Plc (REL)', shares:'400', market_value_usd:12561, pct_portfolio:1.17, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'Denso Corp.', shares:'1,100', market_value_usd:12697, pct_portfolio:1.18, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'Starbucks Corp.', shares:'120', market_value_usd:12263, pct_portfolio:1.14, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'Arista Networks Inc.', shares:'70', market_value_usd:11892, pct_portfolio:1.11, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'Enel S.p.A. (ENEL)', shares:'1,000', market_value_usd:11495, pct_portfolio:1.07, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'Nestlé AG (NESN)', shares:'110', market_value_usd:11329, pct_portfolio:1.06, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'Qualcomm Inc.', shares:'110', market_value_usd:20327, pct_portfolio:1.90, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'Salesforce Inc', shares:'70', market_value_usd:10966, pct_portfolio:1.02, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'Union Pacific Corp.', shares:'40', market_value_usd:10880, pct_portfolio:1.02, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'Barclays PLC (BARC)', shares:'1,500', market_value_usd:10086, pct_portfolio:0.94, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'ServiceNow Inc.', shares:'95', market_value_usd:9432, pct_portfolio:0.88, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'Procter & Gamble Co.', shares:'60', market_value_usd:8798, pct_portfolio:0.82, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'Singapore Telecom (Z74)', shares:'2,500', market_value_usd:8524, pct_portfolio:0.80, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'Shell Plc', shares:'200', market_value_usd:7786, pct_portfolio:0.73, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'Vertiv Holdings LLC -A-', shares:'23', market_value_usd:7701, pct_portfolio:0.72, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'Spotify Technology', shares:'14', market_value_usd:6428, pct_portfolio:0.60, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'Experian Plc (EXPN)', shares:'180', market_value_usd:6075, pct_portfolio:0.57, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'Waystar Holding', shares:'280', market_value_usd:5748, pct_portfolio:0.54, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'NN Group N.V.', shares:'55', market_value_usd:4820, pct_portfolio:0.45, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'Adobe Inc. (ADBE)', shares:'20', market_value_usd:4100, pct_portfolio:0.38, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'Chevron Corp.', shares:'50', market_value_usd:8288, pct_portfolio:0.77, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'Deutsche Telekom AG', shares:'480', market_value_usd:13088, pct_portfolio:1.22, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'Coca-Cola Co (KO)', shares:'160', market_value_usd:13003, pct_portfolio:1.21, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'Netflix Inc. (NFLX)', shares:'85', market_value_usd:6069, pct_portfolio:0.57, notes:''},
+      {as_of_date:'2026-06-30', account:'A02', name:'现金账户', shares:'', market_value_usd:10318, pct_portfolio:0.96, notes:''},
     ];
 
     let FL_SEED_MONTHLY = [
       {month:'2026-03', net_assets:602966,  twr_pct:-2.14, pl_amount:-13213, flow:0,      ytd_twr:null,  note:''},
       {month:'2026-04', net_assets:1416531, twr_pct:0.37,  pl_amount:359,    flow:813206, ytd_twr:10.84, note:'新资金注入'},
-      {month:'2026-05', net_assets:1665916, twr_pct:-0.21, pl_amount:-3115,  flow:252500, ytd_twr:10.60, note:''},
+      {month:'2026-05', net_assets:1665916, twr_pct:-0.21, pl_amount:-3115,  flow:252500,  ytd_twr:10.60, note:''},
+      {month:'2026-06', net_assets:3024498, twr_pct:0.44,  pl_amount:8582,   flow:1350000, ytd_twr:11.09, note:'新资金注入'},
     ];
     // YTD保底值（来自PDF，当Sheet缺ytd_twr列时使用）
-    const FL_YTD_FALLBACK = {'2026-03':10.43,'2026-04':10.84,'2026-05':10.60};
+    const FL_YTD_FALLBACK = {'2026-03':10.43,'2026-04':10.84,'2026-05':10.60,'2026-06':11.09};
     const FL_SEED_HOLDINGS = [
       // ── 2026-04-30 (UBS对账单 净资产 1,416,531) ──────────────────────────────
       {as_of_date:'2026-04-30', name:'UBS通知存款 USD Call Deposit', shares:'', market_value_usd:1127338, pct_portfolio:79.58, notes:'流水号62786 利率2.30%'},
@@ -1314,6 +1380,14 @@
       {as_of_date:'2026-05-29', name:'UBS通知存款 HKD Call Deposit', shares:'', market_value_usd:227031, pct_portfolio:13.63, notes:'流水号98958 利率1.00%'},
       {as_of_date:'2026-05-29', name:'阿里巴巴 Alibaba Group (9988)', shares:'4,000', market_value_usd:61704, pct_portfolio:3.70, notes:'港股 ISIN KYG017191142'},
       {as_of_date:'2026-05-29', name:'NZD现金账户', shares:'', market_value_usd:1241, pct_portfolio:0.07, notes:''},
+      // ── 2026-06-30 (UBS对账单 净资产 3,024,498) ──────────────────────────────
+      {as_of_date:'2026-06-30', name:'UBS Call Deposit USD (主账户)', shares:'', market_value_usd:1878600, pct_portfolio:62.11, notes:'利率约2.30%'},
+      {as_of_date:'2026-06-30', name:'UBS Call Deposit USD', shares:'', market_value_usd:265514, pct_portfolio:8.78, notes:''},
+      {as_of_date:'2026-06-30', name:'JPMorgan Liquidity Funds USD', shares:'17.028', market_value_usd:301831, pct_portfolio:9.98, notes:'ISIN LU0088277610'},
+      {as_of_date:'2026-06-30', name:'Woodside Finance 4.50% Notes 2029', shares:'300,000', market_value_usd:302931, pct_portfolio:10.02, notes:'含应计利息4,350 BBB+/Baa1 ISIN USQ98229AN94'},
+      {as_of_date:'2026-06-30', name:'UBS Call Deposit HKD', shares:'', market_value_usd:227083, pct_portfolio:7.51, notes:'流水号98958 利率1.00%'},
+      {as_of_date:'2026-06-30', name:'阿里巴巴 Alibaba Group (9988)', shares:'4,000', market_value_usd:47360, pct_portfolio:1.57, notes:'港股 ISIN KYG017191142 浮亏-58.09%'},
+      {as_of_date:'2026-06-30', name:'NZD现金账户', shares:'', market_value_usd:1179, pct_portfolio:0.04, notes:''},
     ];
     window.SEED_HOLDINGS = SEED_HOLDINGS;
 
@@ -1665,7 +1739,12 @@
           const normalized = mp.map(r=>({...r, month: normalizeMonth(r.month)}));
           const mainMp = normalized.filter(r=>r.account!=='FL');
           const flMp   = normalized.filter(r=>r.account==='FL');
-          MONTHLY  = mainMp.length ? mainMp : SEED_MONTHLY.map(r=>({...r}));
+          // 从GAS加载时，若ytd_twr列为空，从种子数据补充
+          MONTHLY  = mainMp.length ? mainMp.map(r=>{
+            if(r.ytd_twr!=null && r.ytd_twr!=='') return r;
+            const seed = SEED_MONTHLY.find(s=>s.month===r.month && s.account===r.account);
+            return {...r, ytd_twr: seed ? seed.ytd_twr : null};
+          }) : SEED_MONTHLY.map(r=>({...r}));
           if(flMp.length) FL_SEED_MONTHLY = flMp;
           HOLDINGS = hd.length ? hd : SEED_HOLDINGS.map(r=>({...r}));
           META = {}; (Array.isArray(mt)?mt:[]).forEach(o=>{ if(o&&o.key!=null) META[o.key]=o.value; });
